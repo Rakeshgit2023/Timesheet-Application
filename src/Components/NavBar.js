@@ -4,9 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { AiOutlineUser, AiOutlineLock } from "react-icons/ai";
 import { FiLogOut } from "react-icons/fi";
- 
+import { useMsal } from "@azure/msal-react"; 
 const NavBar = () => {
   const nav=useNavigate();
+  const {instance}=useMsal();
   // State to manage dropdown visibility
   const [showDropdown, setShowDropdown] = useState(false);
  
@@ -17,9 +18,12 @@ const NavBar = () => {
  
   // User name
   const [username,setUsername] = useState('Sohail Khan');
-  const handelLogOut=()=>{
-    localStorage.removeItem('token')
-    nav('/')
+  const handelLogOut=(instance)=>{
+    const logoutRequest = {
+      account: instance.getAccountByHomeId('/role'),
+      postLogoutRedirectUri: "/",
+    };
+    instance.logoutRedirect(logoutRequest);
   }
  
  
@@ -53,7 +57,7 @@ const NavBar = () => {
                     <AiOutlineLock className="mr-2 size-6" />
                     <Link to="/change-password">Change Password</Link>
                   </li>
-                  <li className="flex items-center px-4 py-2 text-lg cursor-pointer rounded hover:text-fuchsia-600" onClick={handelLogOut}>
+                  <li className="flex items-center px-4 py-2 text-lg cursor-pointer rounded hover:text-fuchsia-600" onClick={()=>handelLogOut(instance)}>
                     <FiLogOut className="mr-2 size-6" />
                     {/* <Link to="/">Logout</Link> */}
                     <span>LogOut</span>
