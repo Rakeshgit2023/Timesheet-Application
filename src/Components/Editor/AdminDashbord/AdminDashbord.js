@@ -1,27 +1,33 @@
 import React, {useContext, useEffect, useState} from "react";
-import axios from "axios";
 import { FaStar } from "react-icons/fa";
 import { TbPointFilled } from "react-icons/tb";
 import { IoHomeOutline } from "react-icons/io5";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
-import Context from "../../../Context/Context";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const AdminDashbord = () => {
+    const editor=Cookies.get('EditorTab')
+    const viewer=Cookies.get('ViewerTab')
     const nav=useNavigate();
-    const {setApprovals_Week, setApprovals_Id, setApprovals_TaskStatus, setApprovals_TotalHours, setApprovals_Task, setApprovals_EmpName, setApproval_EmpEmail, setEmployeeId, setFirstName}=useContext(Context)
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
-    const [employeeName, setEmployeeName]=useState('Rakesh Shaw')
+    const [employeeName, setEmployeeName]=useState('')
     const [statusCount, setStatusCount]=useState('');
     const [allRepotees, setAllRepotees]=useState([]);
     const [allClients, setAllClients]=useState([]);
     const [claimedTask, setClaimedTask]=useState([]);
     const [request, setRequest]=useState([]);
+    const handelRole = () => {
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        let user = JSON.parse(userData);
+        userData!==null ? setEmployeeName(JSON.parse(Cookies.get('userInfo')).fullName) : nav('/')
+    }
     const handleDataFetchAdminDashbordData = () => {
         setIsProcessing(true)
-        axios
-            .get(`https://timesheetapplication.onrender.com/admindashboard`)
+        axiosInstance
+            .get(`/admindashboard`)
             .then((res) => {
                 console.log('Data Process Successfuly');
                 setStatusCount(res.data.data[0].statusCounts);
@@ -29,6 +35,15 @@ const AdminDashbord = () => {
                 setAllClients(res.data.data[0].clients);
                 setClaimedTask(res.data.data[0].allTasks);
                 setRequest(res.data.data[0].weeklyTimesheets);
+        //         Cookies.remove('submittedTask')
+        //         Cookies.remove('teamDashboardEmployee')
+        //         Cookies.remove('clientId');
+        //         Cookies.remove('clientName');
+        //         Cookies.remove('clientStatus');
+        //         Cookies.remove('projectId');
+        // Cookies.remove('projectName');
+        // Cookies.remove('projectDescription')
+        // Cookies.remove('projectNotes')
             })
             .catch((err) => {
                 console.log('Data Process Error');
@@ -40,25 +55,38 @@ const AdminDashbord = () => {
         
     }
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+            setIsProcessing(true);
         handleDataFetchAdminDashbordData()
+        }else{
+            nav('/')
+        }
     }, [])
-    const handelRequest=(task,status,totalHours,weekStart,id,name,email)=>{
+    useEffect(()=>{
+        handelRole()
+    },[])
+    const handelRequest=(task,status,totalHours,weekStart,id,name,email,employeeId)=>{
         let startDate=weekStart.split('/').reverse().join('-');
-        console.log(task,status,totalHours,startDate,id)
-        setApprovals_Week({startDate});
-        setApprovals_Task({task});
-        setApprovals_TaskStatus({status});
-        setApprovals_TotalHours({totalHours});
-        setApprovals_Id({id});
-        setApprovals_EmpName({name});
-        setApproval_EmpEmail({email});
-        nav('/editor/approvalStatus')
+        const submittedTask={
+            startDate:startDate,
+            task:task,
+            status:status,
+            totalHours:totalHours,
+            id:id, 
+            name:name,
+            email:email ,
+            //employeeId:employeeId
+        }
+        Cookies.set('submittedTask',JSON.stringify(submittedTask))
+         editor!==undefined ? nav('/editor/approvalStatus') : nav('/viewer/approvalStatus')
     }
     const handelTeamDashbord=(name, id)=>{
-        setFirstName({name});
-        setEmployeeId({id});
-        nav('/editor/teamdashborad')
+        const teamDashboardEmployee={
+            name:name,
+            id:id
+        }
+        Cookies.set('teamDashboardEmployee',JSON.stringify(teamDashboardEmployee))
+        editor!==undefined ? nav('/editor/teamdashborad') : nav('/viewer/teamdashborad')
     }
     return (
         <div className="flex flex-col ml-6 lg:ml-8 mr-2 lg:mr-5 mt-2 lg:mt-5 mb-2 lg:mb-5 overflow-auto scrollbar-hide" style={{ height: '700px' }}>
@@ -268,7 +296,7 @@ const AdminDashbord = () => {
                                     <span className="w-1/5 py-1 text-xs text-center font-normal">{e.status}</span>
                                     {/* <span className="w-1/5 py-1 text-xs text-center font-normal">r</span> */}
                                     <div className="w-1/5 py-1">
-                                    <IoArrowForwardCircleOutline className="text-2xl text-center ml-3 lg:ml-6" onClick={()=>handelRequest(e.tasks,e.status,e.totalHours,e.weekRange.start,e.timesheetId,e.employeeName,e.email)}/>
+                                    <IoArrowForwardCircleOutline className="text-2xl text-center ml-3 lg:ml-6" onClick={()=>handelRequest(e.tasks,e.status,e.totalHours,e.weekRange.start,e.timesheetId,e.employeeName,e.email,e.employeeId)}/>
                                     </div>
                                 </div>
                             ))}
@@ -285,6 +313,7 @@ const AdminDashbord = () => {
     )
 }
 export default AdminDashbord;
+
 
 
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { BsArrowLeftShort, BsSearch } from "react-icons/bs";
 import { PiList } from "react-icons/pi";
@@ -13,16 +13,23 @@ import { FaRegNewspaper } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import NavBar from "../NavBar";
 
 const RepoteeSideBar = () => {
+  const location=useLocation();
+  const nav=useNavigate();
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState('teamDashbord');
   const handelAction = (action) => {
     setActive(action);
   }
-  return (
+  useEffect(()=>{
+    setActive(location.pathname.split('/')[2])
+ },[location.pathname.split('/')[2]])
+  return ( 
     <div className="flex flex-col">
+      <NavBar/>
       <div className="flex mt-16">
         <div
           className={`bg-blue-950 h-100vh p-1 lg:p-5 pt-8 ${open ? "w-32 lg:w-72" : "w-20"
@@ -35,7 +42,7 @@ const RepoteeSideBar = () => {
           />
           <Link to='teamDashbord' onClick={() => handelAction('teamDashbord')}>
             <li
-              className={active === 'teamDashbord' ? 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-10 bg-indigo-500' : 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-10'}
+              className={active === 'teamDashbord' || active === 'teamDashboardApprovalStatus' ? 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-10 bg-indigo-500' : 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-10'}
             >
               <span className="text-lg lg:text-2xl block float-left ">
                 <PiList />
@@ -82,7 +89,7 @@ const RepoteeSideBar = () => {
             </Link>
             <Link to="employee" onClick={() => handelAction('employee')}>
               <li
-                className={active === 'employee' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'employee' || active === 'employeeDetails' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -98,7 +105,7 @@ const RepoteeSideBar = () => {
             </Link >
             <Link to='timesheetSetting' onClick={() => handelAction('timesheetSetting')}>
               <li
-                className={active === 'timesheetSetting' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'timesheetSetting' || active === 'addTimeSheetSetting' || active === 'timesheetSettingDetails' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -114,7 +121,7 @@ const RepoteeSideBar = () => {
             </Link>
             <Link to='taskAllocation' onClick={() => handelAction('taskAllocation')}>
               <li
-                className={active === 'taskAllocation' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'taskAllocation' || active === 'addTask' || active === 'taskDetails' || active === 'editTask' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -130,7 +137,7 @@ const RepoteeSideBar = () => {
             </Link>
             <Link to='myTimesheet' onClick={() => handelAction('myTimesheet')}>
               <li
-                className={active === 'myTimesheet' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'myTimesheet' || active === 'addMyTimesheet' || active === 'myTimesheetStatus' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -147,7 +154,7 @@ const RepoteeSideBar = () => {
             </Link>
             <Link to='approvals' onClick={() => handelAction('approvals')}>
               <li
-                className={active === 'approvals' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'approvals' || active === 'approvalStatus'  ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">

@@ -1,22 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { BsArrowLeftShort, BsSearch } from "react-icons/bs";
-import { PiList } from "react-icons/pi";
-import { GoProjectSymlink } from "react-icons/go";
 import { IoIosPeople } from "react-icons/io";
-import { FaRegFlag } from "react-icons/fa";
-import { IoHomeOutline } from "react-icons/io5";
-import { CiBookmark } from "react-icons/ci";
-import { CiExport } from "react-icons/ci";
-import { IoLogoGameControllerB } from "react-icons/io";
-import { FaRegNewspaper } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
-import { IoSettingsOutline } from "react-icons/io5";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import NavBar from "../NavBar";
 
 const EmployeeSideBar = () => {
+  const nav=useNavigate();
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState('myDashbord');
   const handelAction = (action) => {

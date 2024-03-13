@@ -4,8 +4,9 @@ import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import axios from "axios";
 import Context from "../../../Context/Context";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 
 
 const Approvals_Home = () => {
@@ -58,13 +59,13 @@ const Approvals_Home = () => {
     { value: "rejected", label: "Rejected" },
   ];
 
-  const handleDataFetch = () => {
+  const handleDataFetch = (leadId) => {
     setIsProcessing(true);
     // const apiUrl = `${API}?year=${value}&rlpl=${option_pl.value}&directReportee=${RepoteeValue}&status=${statusValue}`;
     // const apiUrl = `${API}/${statusValue}`;
    console.log(year.value,practiceLeadValue.value,RepoteeValue.value,statusValue.value);
-    axios
-      .get(`https://timesheetapplication.onrender.com/approval/${year.value}/1000/${RepoteeValue.value}/${statusValue.value}`)
+    axiosInstance
+      .get(`/approval/${year.value}/${leadId}/${RepoteeValue.value}/${statusValue.value}`)
       .then((res) => {
         console.log("Data Process Successfuly");
         console.log(res.data);
@@ -79,9 +80,10 @@ const Approvals_Home = () => {
       .finally(() => setIsProcessing(false));
   };
 
-  const handleFetchPractiseLead = () => {
-    axios
-    .get("https://timesheetapplication.onrender.com/employee/1000")
+  const handleFetchPractiseLead = (employeeId) => {
+    console.log(employeeId)
+    axiosInstance
+    .get(`/employee/${employeeId}`)
     .then((res) => {
       const uniqueOptions = res.data.data.reduce((unique, current) => {
         if (current.isLead && !unique.some((item) => item.value === current.leadId)) {
@@ -101,8 +103,8 @@ const Approvals_Home = () => {
 
 
   const handleFetchLeadDirectRepotee = (selectedLeadId) => {
-    axios
-      .get("https://timesheetapplication.onrender.com/employee")
+    axiosInstance
+      .get("/employee")
       .then((res) => {
         const children = res.data.data.filter(
           (e) => e.isLead === true && e.leadId === selectedLeadId
@@ -119,22 +121,33 @@ const Approvals_Home = () => {
   };
   const handelRow = (row) => {
     const startDate = row.weekRange.start.split('/').reverse().join('-');
-    const status = row.status;
-    const totalHours = row.totalHours;
-    const task = row.tasks;
-    console.log(task);
-    const id = row.timesheetId;
-    const name = row.employee_Info.fullName;
-    const email = row.employee_Info.email;
-    setApprovals_Week({ startDate });
-    setApprovals_Id({ id })
-    setApprovals_TaskStatus({ status });
-    setApprovals_TotalHours({ totalHours });
-    setApprovals_Task({ task });
-    setApprovals_EmpName({name});
-    setApproval_EmpEmail({email});
+    const approvalTask={
+      startDate:startDate, 
+      task:row.tasks,
+      status:row.status,
+      totalHours:row.totalHours,
+      id:row.timesheetId,
+      name:row.employee_Info.fullName,
+      email:row.employee_Info.email ,
+      employeeId:row.employee_Info.employeeId
+  }
+  Cookies.set('approvalTask',JSON.stringify(approvalTask))
+    // const status = row.status;
+    // const totalHours = row.totalHours;
+    // const task = row.tasks;
+    // console.log(task);
+    // const id = row.timesheetId;
+    // const name = row.employee_Info.fullName;
+    // const email = row.employee_Info.email;
+    // setApprovals_Week({ startDate });
+    // setApprovals_Id({ id })
+    // setApprovals_TaskStatus({ status });
+    // setApprovals_TotalHours({ totalHours });
+    // setApprovals_Task({ task });
+    // setApprovals_EmpName({name});
+    // setApproval_EmpEmail({email});
 
-    nav('/repotingLead/status');
+    nav('/repotingLead/approvalStatus');
   }
   const columns = [
     {
@@ -189,6 +202,7 @@ const Approvals_Home = () => {
     // },
     {
       name: "Employee",
+      selector:'employee_Info.employeeId',
       selector:'employee_Info.fullName',
       selector: "employee_Info.email",
       sortable: true,
@@ -217,14 +231,20 @@ const Approvals_Home = () => {
   };
 
   useEffect(() => {
-    setIsProcessing(true);
-    handleDataFetch();
-    handleFetchPractiseLead();
+    let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+          setIsProcessing(true);
+          console.log(JSON.parse(Cookies.get('userInfo')).employeeId)
+    handleDataFetch(JSON.parse(Cookies.get('userInfo')).leadId);
+    handleFetchPractiseLead(JSON.parse(Cookies.get('userInfo')).leadId);
+        }else{
+          nav('/')
+        }
   }, []);
 
   useEffect(()=>{
   
-    handleDataFetch();
+    handleDataFetch(JSON.parse(Cookies.get('userInfo')).leadId);
 
   },[year.value,
   practiceLeadValue.value,

@@ -1,20 +1,19 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
-import Context from "../../../Context/Context";
 import { RxCross1 } from "react-icons/rx";
-const API = 'https://timesheetapplication.onrender.com/addProject'
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const AddProjectClientDetails = ({ visible, onClose }) => {
+  //const [clientName, setClientName]=useState('')
   const [projectName, setProjectName] = useState('');
   const [description, setDescription] = useState('');
   const [note, setNote] = useState('');
-  const { cilentId, clientName } = useContext(Context)
   const handleSubmit = (e) => {
     // e.preventDefault()
     const req = {
       name: projectName,
       notes: note,
       descriptions: description,
-      clientId: cilentId.id
+      clientId: Number(Cookies.get('clientId'))
     }
     console.log(req);
     handleAddNewData(req);
@@ -25,8 +24,8 @@ const AddProjectClientDetails = ({ visible, onClose }) => {
 
   }
   const handleAddNewData = (req) => {
-    projectName !== '' && axios
-      .post(API, req)
+    projectName !== '' && axiosInstance
+      .post('/addProject', req)
       .then((res) => {
         console.log(res.data)
       })
@@ -48,14 +47,14 @@ const AddProjectClientDetails = ({ visible, onClose }) => {
           </span>
           <RxCross1 onClick={onClose} className=" mt-1" />
         </div>
-        <hr />
+        <hr /> 
         {/* <form onSubmit={handleSubmit}> */}
         <div className="flex flex-col mt-2 lg:mt-3">
           <div>
             <h3 className="font-semibold text-sm lg:text-lg text-gray-700">ClientId</h3>
             <input
               type="text"
-              value={clientName.c_name}
+              value={Cookies.get('clientName')}
               className="outline-none border border-5 border-gray-300 bg-gray-100 rounded p-1 mb-2 w-40 lg:w-60"
             />
           </div>

@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import axios from 'axios';
 import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/client';
-const api='https://timesheetapplication.onrender.com/addProject';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const AddProject=()=> {
    const nav=useNavigate();
    const [value, setValue]=useState('')
@@ -22,8 +22,8 @@ const AddProject=()=> {
       }),
     }
    const handelGetClientData=()=>{
-      axios
-        .get(API)
+      axiosInstance
+        .get('/client')
         .then((res) => {
           const newOptions = res.data.data.map((e) => ({ value: e.clientId, label: e.name }));  
                  setOption(newOptions);
@@ -50,8 +50,8 @@ const AddProject=()=> {
       }
     })
   const handleAddNewData =(req)=>{
-      axios
-          .post(api,req)
+      axiosInstance
+          .post('/addProject',req)
           .then((res)=> {
             console.log(res.data)
              nav('/editor/project')
@@ -60,6 +60,7 @@ const AddProject=()=> {
   }
   useEffect(()=>{
    handelGetClientData();
+   Cookies.get('EditorTab')===undefined && nav('/')
   },[])
   useEffect(()=>{setIsTrue(false)},[value.value])
   return (

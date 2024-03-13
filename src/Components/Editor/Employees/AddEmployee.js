@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import DataTable from 'react-data-table-component';
 import Select from 'react-select';
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-const API = 'https://timesheetapplication.onrender.com/employee';
-const api = 'https://timesheetapplication.onrender.com/addEmployee';
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const AddEmployee = () => {
     const nav = useNavigate();
     const [firstName, setFirstName] = useState('');
@@ -31,8 +30,8 @@ const AddEmployee = () => {
     }
     const handleAddNewData = (req) => {
         if (firstName !== '' && lastName !== '' && email !== '' && value.value !== '' && value1.value !== '' && name !== '') {
-            axios
-                .post(api, req)
+            axiosInstance
+                .post('/addEmployee', req)
                 .then((res) => {
                     console.log(res.data)
                     nav('/editor/employee')
@@ -56,8 +55,8 @@ const AddEmployee = () => {
     }
     const show = 'relative inline-flex px-8 py-3 font-semibold text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
     const handelFetchLead = () => {
-        axios
-            .get(API)
+        axiosInstance
+            .get('/employee')
             .then((res) => {
                 const newOptions = res.data.data.map((e) => ({ value: e.leadId, label: e.fullName }));
                 setOption(newOptions);
@@ -70,6 +69,7 @@ const AddEmployee = () => {
     }
     useEffect(() => {
         handelFetchLead()
+        Cookies.get('EditorTab')===undefined && nav('/')
     }, [])
     return (
         <div className="flex flex-col mt-8 px-12 py-5 lg:py-4">

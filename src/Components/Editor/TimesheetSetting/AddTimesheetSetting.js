@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import axios from 'axios';
-const API='https://timesheetapplication.onrender.com/addTimesheetSetting';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const AddTimesheetSetting = () => {
   const nav = useNavigate();
   const show = 'relative inline-flex px-4 py-1 lg:px-8 lg:py-3  font-semibold text-lg lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
@@ -30,8 +30,8 @@ const AddTimesheetSetting = () => {
     }),
   }
   const handelFetchEmployee = () => {
-    axios
-      .get('https://timesheetapplication.onrender.com/employee')
+    axiosInstance
+      .get('/employee')
       .then((res) => {
         const newOptions = res.data.data.map((e) => ({ value: e.employeeId, label: e.fName + ' ' + e.lName }));
         setE_Option(newOptions);
@@ -43,8 +43,8 @@ const AddTimesheetSetting = () => {
       });
   }
   const handelFetchClient = () => {
-    axios
-      .get('https://timesheetapplication.onrender.com/client')
+    axiosInstance
+      .get('/client')
       .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.status === 'active')
@@ -61,6 +61,7 @@ const AddTimesheetSetting = () => {
   useEffect(() => {
     handelFetchEmployee();
     handelFetchClient();
+    Cookies.get('EditorTab')===undefined && nav('/')
   }, [])
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -77,8 +78,8 @@ const AddTimesheetSetting = () => {
 
   }
   const handleAddNewData = (req) => {
-     axios
-      .post(API, req)
+     axiosInstance
+      .post('/addTimesheetSetting', req)
       .then((res) => {
         console.log(res.data)
         nav('/editor/timesheetSetting')

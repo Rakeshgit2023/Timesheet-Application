@@ -2,17 +2,19 @@ import React, { useContext, useEffect } from 'react'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import axios from 'axios';
 import Context from '../../../Context/Context';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const Edit_Task = () => {
   const nav=useNavigate();
+  const [taskAllocation, setTaskAllocation]=useState('')
   const show = 'relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-lg lg:text-xl font-semibold traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
   const {taskId,taskName,taskEmployeeName,taskProjectName,taskChargeCode,taskActivityType,taskEstimatedHours,taskBillable,taskStartDate,taskEndDate,taskNote}=useContext(Context);
-  const [estimatedHours, setEstimatedHours]=useState(taskEstimatedHours.e_hours)
-  const [value, setValue]=useState({value:taskBillable.billable, label:taskBillable.billable});
-  const [periodStart, setPeriodStart]=useState(taskStartDate.s_date);
-  const [periodEnd, setPeriodEnd]=useState(taskEndDate.e_date);
-  const [note, setNote]=useState(taskNote.note);
+  const [estimatedHours, setEstimatedHours]=useState('')
+  const [value, setValue]=useState({value:Cookies.get('taskAllocationBillable'), label:Cookies.get('taskAllocationBillable')});
+  const [periodStart, setPeriodStart]=useState('');
+  const [periodEnd, setPeriodEnd]=useState('');
+  const [note, setNote]=useState('');
   const options = [
     { value: 'yes', label: 'yes' },
     { value: 'no', label: 'no' }
@@ -26,8 +28,8 @@ const Edit_Task = () => {
     }),
   }
   const handelEdit = () => {
-    axios
-      .put(`https://timesheetapplication.onrender.com/updateTask/${taskId.id}`, {
+    axiosInstance
+      .put(`/updateTask/${taskAllocation.taskId}`, {
         estimatedHours:Number(estimatedHours),
         billable:value.value,
         startDate:periodStart,
@@ -40,6 +42,18 @@ const Edit_Task = () => {
       })
       .catch(err => alert(err.response.data.error))
   }
+  useEffect(()=>{
+    let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+    if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+      setTaskAllocation(JSON.parse(Cookies.get('taskAllocation')))
+      setEstimatedHours(JSON.parse(Cookies.get('taskAllocation')).estimatedHours)
+      setNote(JSON.parse(Cookies.get('taskAllocation')).note)
+      setPeriodStart(JSON.parse(Cookies.get('taskAllocation')).startDate)
+      setPeriodEnd(JSON.parse(Cookies.get('taskAllocation')).endDate)
+    }else{
+      nav('/')
+    }
+  },[])
   return (
 
     <div className='w-full py-12 px-12 lg:px-20'>
@@ -52,7 +66,7 @@ const Edit_Task = () => {
             Task
           </h3>
           <div className="flex w-90 flex-col gap-6 ">
-            <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded  px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={taskName.t_name}></input>
+            <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded  px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={taskAllocation.taskName}></input>
           </div>
         </div>
         <div className='py-2'>
@@ -60,7 +74,7 @@ const Edit_Task = () => {
           Employee
           </h3>
           <div className="flex  w-90  flex-col gap-6 ">
-          <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={taskEmployeeName.e_name}></input>
+          <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={taskAllocation.employeeName}></input>
           </div>
         </div>
         <div className='py-1'>
@@ -68,7 +82,7 @@ const Edit_Task = () => {
             Charge Activity Type 
           </h3>
           <div className="flex w-90 flex-col gap-6 ">
-            <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={taskActivityType.a_type}></input>
+            <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={taskAllocation.activityType}></input>
           </div>
         </div>
         <div className='py-1'>
@@ -111,7 +125,7 @@ const Edit_Task = () => {
             <input className='outline-none cursor-pointer border-5 border-gray-400   rounded px-4 py-3 lg:py-2 text-xs lg:text-base lg:mr-2 lg:w-7/12 font-normal' type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
           </div>
         </div>
-      </div>
+      </div> 
       <div className='flex justify-end gap-5 lg:gap-10 pl-10 mt-24 ml-12 lg:mt-20 lg:ml-10 w-full'>
           <button className='relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-lg lg:text-xl font-semibold traking-widset hover:bg-slate-600 hover:text-white rounded-full' onClick={() => nav('/repotingLead/taskDetails')}>Cancel</button>
           <button className={(value!=='' && estimatedHours!=='' && periodStart !== '' && periodEnd !== '') ? show : 'relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-lg lg:text-xl bg-gray-200 font-semibold text-gray-400 traking-widset rounded-full border-solid border-2 border-gray-400 ... mr-12'} onClick={handelEdit}>Add</button>

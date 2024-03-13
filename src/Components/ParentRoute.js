@@ -56,14 +56,15 @@ import My_Timesheet from "./Employee/MyTimesheet/My_Timesheet";
 import AddMy_Timesheet from "./Employee/MyTimesheet/AddMy_Timesheet";
 import TimesheetStatus from "./Employee/MyTimesheet/TimesheetStatus";
  import Login from "./Register/Login";
+import ProtectedRoute from "./ProtectedRoute";
 const ParentRoute = () => {
    return (
       <div>
          <Router>
             <Routes>
                <Route path="/" element={<Login/>}/>
-               <Route path="/role" element={<Role />} />
-               <Route path="/editor" element={<ClientSideBar />}>
+               <Route path="/role" element={<ProtectedRoute name={Role} />} />
+               <Route path="/editor" element={<ProtectedRoute name={ClientSideBar} />}>
                   <Route path="adminDashbord" element={<AdminDashbord/>}/>
                   <Route path="teamdashborad" element={<Team_dashbord/>}/>
                   <Route path="approvalStatus" element={<AdminApprovalStatus/>}/>
@@ -92,7 +93,7 @@ const ParentRoute = () => {
                   <Route path="addTimeSheetSetting" element={<AddTimesheetSetting />} />
                   <Route path="timesheetSettingDetails" element={<TimesheetSettingDetails />} />
                   <Route path="editTimesheetSetting" element={<EditTimesheetSetting />} />
-
+ 
                   <Route path="taskAllocation" element={<TaskAllocationHome />} />
                   <Route path="addTask" element={<AddTaskAllocation />} />
                   <Route path="taskDetails" element={<TaskDetails />} />
@@ -102,11 +103,36 @@ const ParentRoute = () => {
                   <Route path="status" element={<ApprovalStatus/>}/>
                </Route>
 
-               <Route path="/viewer" element={<RepoteeSideBar />} />
+               <Route path="/viewer" element={<ProtectedRoute name={ClientSideBar} />}>
+               <Route path="adminDashbord" element={<AdminDashbord/>}/>
+                  <Route path="teamdashborad" element={<Team_dashbord/>}/>
+                  <Route path="approvalStatus" element={<AdminApprovalStatus/>}/>
 
-               <Route path="/repotingLead" element={<RepoteeSideBar />} >
+               <Route path="client" element={<ClientHome />} />
+                  <Route path="clientDetails" element={<ClientDetails />} />
+
+                  <Route path="project" element={<ProjectHome />} />
+                  <Route path="projectDetails" element={<ProjectDetails />} />
+
+                  <Route path="chargeActivity" element={<ChargeActivityTypeHome />} />
+                  <Route path="chargeActivityTypeDetails" element={<ChargeActivityTypeDetails />} />
+
+                  <Route path="employee" element={<EmployeeHome />} />
+                  <Route path="employeeDetails" element={<EmployeDetails />} />
+
+                  <Route path="timesheetSetting" element={<TimesheetSettingHome />} />
+                  <Route path="timesheetSettingDetails" element={<TimesheetSettingDetails />} />
+
+                  <Route path="taskAllocation" element={<TaskAllocationHome />} />
+                  <Route path="taskDetails" element={<TaskDetails />} />
+
+                  <Route path="approvals" element={<ApprovalsHome/>}/>
+                  <Route path="status" element={<ApprovalStatus/>}/>
+               </Route>
+
+               <Route path="/repotingLead" element={<ProtectedRoute name={RepoteeSideBar} />} >
                   <Route path="teamDashbord" element={<TeamDashbord/>}/>
-                  <Route path="status" element={<TeamApprovalStatus/>}/>
+                  <Route path="teamDashboardApprovalStatus" element={<TeamApprovalStatus/>}/>
 
                   <Route path="myDashbord" element={<MyDashbord />} />
 
@@ -124,13 +150,13 @@ const ParentRoute = () => {
 
                   <Route path="myTimesheet" element={<MyTimesheet />} />
                   <Route path="addMyTimesheet" element={<AddMyTimesheet />} />
-                  <Route path="status" element={<Status/>}/>
+                  <Route path="myTimesheetStatus" element={<Status/>}/>
 
                   <Route path="approvals" element={<Approvals_Home/>}/>
-                  <Route path="status" element={<Approval_Status/>}/>
+                  <Route path="approvalStatus" element={<Approval_Status/>}/>
                </Route>
 
-               <Route path="/employee" element={<EmployeeSideBar/>}>
+               <Route path="/employee" element={<ProtectedRoute name={EmployeeSideBar} />}>
                   <Route path="myDashboard" element={<My_Dashbord/>}/>
 
                   <Route path="myTimesheet" element={<My_Timesheet />} />

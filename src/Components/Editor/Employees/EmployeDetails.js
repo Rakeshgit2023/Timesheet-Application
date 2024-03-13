@@ -3,21 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaStar } from "react-icons/fa";
-import axios from "axios";
 import Select from "react-select";
-import Context from "../../../Context/Context";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const EmployeDetails = () => {
+    const editor=Cookies.get('EditorTab')
+    const viewer=Cookies.get('ViewerTab')
     const nav = useNavigate();
-    const {
-        employeeId,
-        firstName,
-        lastName,
-        email,
-        gender,
-        status,
-        leadId,
-        leadName,
-    } = useContext(Context);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState("");
@@ -74,8 +66,8 @@ const EmployeDetails = () => {
     ];
     const handelFetchEmployeeData = () => {
         setIsProcessing(true);
-        axios
-            .get(`https://timesheetapplication.onrender.com/mydashboard/${employeeId.e_id}`)
+        axiosInstance
+            .get(`/mydashboard/${Cookies.get('employeeId')}`)
             .then((res) => {
                 setEmployeeData(res.data.data.employee_Info);
                 setStatusCount(res.data.data.statusCounts);
@@ -84,6 +76,9 @@ const EmployeDetails = () => {
                 setAllocatedTask(res.data.data.allTasks);
                 setClientinfo(res.data.data.client_Info); // Update state with allocated tasks
                 // Update state with allocated tasks
+                // Cookies.set('employeeStatus',res.data.data.employee_Info.status)
+                // Cookies.set('leadNameOfEmployee',res.data.data.employee_Info.leadName)
+                // Cookies.set('leadIdOfEmployee',res.data.data.employee_Info.leadId)
             })
             .catch((err) => {
                 console.log("Data Process Error");
@@ -93,10 +88,21 @@ const EmployeDetails = () => {
             })
             .finally(() => setIsProcessing(false));
     };
-
+ 
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+            setIsProcessing(true);
         handelFetchEmployeeData();
+        }else{
+            nav('/')
+        }
+        if(Cookies.get('employeeId')===undefined && editor!==undefined && viewer===undefined){
+            nav('/editor/adminDashbord')
+        }
+        // setIsProcessing(true);
+        // handelFetchEmployeeData();
+        // Cookies.get('employeeId')===undefined && nav('/editor/adminDashbord')
+        // Cookies.get('EditorTab')===undefined && nav('/')
     }, []);
     const handelFilterStatus=(status)=>{
         console.log('rakesh')
@@ -144,10 +150,12 @@ const EmployeDetails = () => {
                                                 Status
                                             </span>
                                             {/* <span className="px-8" onClick={()=>nav('/editEmployee')}>E</span> */}
-                                            <CiEdit
+                                            {
+                                                editor!==undefined && <CiEdit
                                                 className="mr-5 lg:mr-10 text-xl lg:text-2xl font-medium cursor-pointer rounded-full border-solid border-2 bg-amber-400"
                                                 onClick={() => nav("/editor/editEmployee")}
                                             />
+                                            }
                                         </div>
                                         <div className="flex flex-row justify-between lg:mb-1">
                                             <span className="font-medium text-sm lg:text-base px-6 lg:px-8">

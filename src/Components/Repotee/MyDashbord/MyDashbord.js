@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaStar } from "react-icons/fa";
-import axios from "axios";
 import Select from "react-select";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const MyDashbord = () => {
     const nav = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
@@ -60,10 +61,10 @@ const MyDashbord = () => {
             body: "quia et suscipit\nsusc",
         },
     ];
-    const handelFetchEmployeeData = () => {
+    const handelFetchEmployeeData = (employeeId) => {
         setIsProcessing(true);
-        axios
-            .get(`https://timesheetapplication.onrender.com/mydashboard/1000`)
+        axiosInstance
+            .get(`/mydashboard/${employeeId}`)
             .then((res) => {
                 setEmployeeData(res.data.data.employee_Info);
                 setStatusCount(res.data.data.statusCounts);
@@ -83,8 +84,13 @@ const MyDashbord = () => {
     };
 
     useEffect(() => {
-        setIsProcessing(true);
-        handelFetchEmployeeData();
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setIsProcessing(true);
+        handelFetchEmployeeData(JSON.parse(Cookies.get('userInfo')).employeeId);
+        }else{
+            nav('/')
+        }
     }, []);
     const handelFilterStatus=(status)=>{
         console.log('rakesh')

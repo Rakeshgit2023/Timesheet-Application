@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/task/1000';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const TaskAllocation_Home = () => {
     const [apiData, setApiData] = useState([]);
     const [filterApiData, setFilterApiData] = useState([]);
@@ -14,41 +14,31 @@ const TaskAllocation_Home = () => {
     const {setTaskId,setTaskName,setTaskEmployeeId,setTaskEmployeeName,setTaskClientId,setTaskProjectId,setTaskProjectName,setTaskChargeCode,setTaskActivityType,setTaskEstimatedHours,setTaskBillable,setTaskStartDate,setTaskEndDate,setTaskNote}=useContext(Context);
     const nav = useNavigate();
     const handelRow=(row)=>{
+        const taskAllocation={
+            taskId:row.taskId,
+            taskName:row.task,
+            employeeId:row.employee_Info.employeeId,
+            employeeName:row.employee_Info.fullName,
+            clientId:row.client_Info.clientId,
+            projectId:row.project_Info.projectId,
+            projectName:row.project_Info.name,
+            chargeCode:row.chargeCode,
+            activityType:row.activityType,
+            estimatedHours:row.estimatedHours,
+            startDate:row.startDate,
+            endDate:row.endDate,
+            note:row.notes
+           }
+   
+           Cookies.set('taskAllocation',JSON.stringify(taskAllocation));
+           Cookies.set('taskAllocationBillable',row.billable)
         nav('/repotingLead/taskDetails')
-        const id=row.taskId;
-        const t_name=row.task;
-        const e_id=row.employee_Info.employeeId;
-        const e_name=row.employee_Info.fullName;
-        const c_id=row.client_Info.clientId;
-        const p_id=row.project_Info.projectId;
-        const p_name=row.project_Info.name;
-        const c_code=row.chargeCode;
-        const a_type=row.activityType;
-        const e_hours=row.estimatedHours;
-        const billable=row.billable;
-        const s_date=row.startDate;
-        const e_date=row.endDate;
-        const note=row.notes;
-        setTaskId({id});
-        setTaskName({t_name});
-        setTaskEmployeeId({e_id});
-        setTaskEmployeeName({e_name})
-        setTaskClientId({c_id});
-        setTaskProjectId({p_id});
-        setTaskProjectName({p_name})
-        setTaskChargeCode({c_code});
-        setTaskActivityType({a_type});
-        setTaskEstimatedHours({e_hours});
-        setTaskBillable({billable});
-        setTaskStartDate({s_date});
-        setTaskEndDate({e_date});
-        setTaskNote({note});
     }
-    const handleDataFetch = () => {
+    const handleDataFetch = (employeeId) => {
         setIsProcessing(true)
-        axios
-            .get(API)
-            .then((res) => {
+        axiosInstance
+            .get(`/task/${employeeId}`)
+            .then((res) => { 
                 console.log('Data Process Successfuly');
                 console.log(res.data);
                 setApiData(res.data.data)
@@ -130,8 +120,13 @@ const TaskAllocation_Home = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
-        handleDataFetch()
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setIsProcessing(true);
+            handleDataFetch(JSON.parse(Cookies.get('userInfo')).employeeId)
+        }else{
+            nav('/')
+        }
     }, [])
 
     const handleFilter = (e) => {

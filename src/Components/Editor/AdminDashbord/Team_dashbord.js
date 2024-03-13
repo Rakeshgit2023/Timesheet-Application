@@ -1,19 +1,21 @@
 import React, {useContext, useEffect, useState} from "react";
-import axios from "axios";
 import { FaStar } from "react-icons/fa";
 import { TbPointFilled } from "react-icons/tb";
 import { IoHomeOutline } from "react-icons/io5";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
-import Context from "../../../Context/Context";
 import { useNavigate } from "react-router-dom";
-const Team_dashbord = () => {
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
+const Team_dashbord = () => { 
+    const editor=Cookies.get('EditorTab')
+    const viewer=Cookies.get('ViewerTab')
     const nav=useNavigate();
-    const {setApprovals_Week, setApprovals_Id, setApprovals_TaskStatus, setApprovals_TotalHours, setApprovals_Task, setApprovals_EmpName, setApproval_EmpEmail, firstName, employeeId}=useContext(Context)
+    const [teamDashboardEmployee, setTeamDashboardEmployee]=useState('')
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
-    const [empId, setEmpId]=useState(employeeId.id)
-    const [employeeName, setEmployeeName]=useState(firstName.name)
+    const [empId, setEmpId]=useState('')
+    const [employeeName, setEmployeeName]=useState('')
     const [statusCount, setStatusCount]=useState('');
     const [directRepotees, setDirectRepotees]=useState([]);
     const [AssociatedClients, setAssociatedClients]=useState([]);
@@ -21,8 +23,8 @@ const Team_dashbord = () => {
     const [request, setRequest]=useState([]);
     const handleDataFetchTeamDashbordData = (empId) => {
         setIsProcessing(true)
-        axios
-            .get(`https://timesheetapplication.onrender.com/teamdashboard/${empId}`)
+        axiosInstance
+            .get(`/teamdashboard/${empId}`)
             .then((res) => {
                 console.log('Data Process Successfuly');
                 setStatusCount(res.data.data[0].statusCounts);
@@ -39,22 +41,34 @@ const Team_dashbord = () => {
             })
             .finally(() => setIsProcessing(false))
         
-    }
+    } 
     useEffect(() => {
-        setIsProcessing(true);
-        handleDataFetchTeamDashbordData(empId)
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+         if(userData!==null && (editor!==undefined || viewer!==undefined)){
+            setTeamDashboardEmployee(JSON.parse(Cookies.get('teamDashboardEmployee')))
+            setEmployeeName(JSON.parse(Cookies.get('teamDashboardEmployee')).name)
+           // setEmpId(JSON.parse(Cookies.get('teamDashboardEmployee')).id)
+            setIsProcessing(true);
+            handleDataFetchTeamDashbordData(JSON.parse(Cookies.get('teamDashboardEmployee')).id)
+        }else{
+            nav('/')
+        }
     }, [empId])
     const handelRequest=(task,status,totalHours,weekStart,id,name,email)=>{
         let startDate=weekStart.split('/').reverse().join('-');
         console.log(task,status,totalHours,startDate,id)
-        setApprovals_Week({startDate});
-        setApprovals_Task({task});
-        setApprovals_TaskStatus({status});
-        setApprovals_TotalHours({totalHours});
-        setApprovals_Id({id});
-        setApprovals_EmpName({name});
-        setApproval_EmpEmail({email});
-        nav('/editor/approvalStatus')
+        const submittedTask={
+            startDate:startDate,
+            task:task,
+            status:status,
+            totalHours:totalHours,
+            id:id,
+            name:name,
+            email:email
+        }
+        Cookies.set('submittedTask',JSON.stringify(submittedTask))
+        editor!==undefined ? nav('/editor/approvalStatus') : nav('/viewer/approvalStatus')
+        console.log(Cookies.get('editor'))
     }
     return (
         <div className="flex flex-col ml-6 lg:ml-8 mr-2 lg:mr-5 mt-2 lg:mt-5 mb-2 lg:mb-5 overflow-auto scrollbar-hide" style={{ height: '700px' }}>
@@ -168,7 +182,7 @@ const Team_dashbord = () => {
                 <div className="w-full flex justify-between items-center mb-1 mt-1">
                     <span className="font-bold text-base lg:text-xl text-slate-800 px-6">Direct Repotees</span>
                     <div className="px-6">
-                    <IoHomeOutline className="text-lg" onClick={()=>nav('/editor/adminDashbord')} />
+                    <IoHomeOutline className="text-lg" onClick={editor!==undefined ? ()=>nav('/editor/adminDashbord') : ()=>nav('/viewer/adminDashbord')} />
                     </div>
                     </div>
                     <div className="w-11/12 h-0.5 bg-slate-200 rounded-full ml-3 lg:ml-4"></div>
@@ -177,8 +191,13 @@ const Team_dashbord = () => {
                                             <div className="flex gap-3 w-full mb-2" key={index}>
                                                 <TbPointFilled className="text-slate-400 text-xl" />
                                                 <span className="text-xs font-normal " onClick={()=>{
-                                                setEmployeeName(e.employeeName);
-                                                setEmpId(e.employeeId)
+                                                // setEmployeeName(e.employeeName);
+                                                 setEmpId(e.employeeId)
+                                                const teamDashboardEmployee={
+                                                    name:e.employeeName,
+                                                    id:e.employeeId
+                                                }
+                                                Cookies.set('teamDashboardEmployee',JSON.stringify(teamDashboardEmployee))
                                                 }}>{e.employeeName}</span>
                                             </div>
                                         ))}

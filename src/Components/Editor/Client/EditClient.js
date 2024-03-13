@@ -4,11 +4,11 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Select from 'react-select';
 import Context from '../../../Context/Context';
-import axios from 'axios';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const EditClient = () => {
   const nav = useNavigate();
-  const { clientName, cilentId,clientStatus } = useContext(Context)
-  const [value, setValue]=useState({value: clientStatus.c_status, label:clientStatus.c_status})
+  const [value, setValue]=useState({value: Cookies.get('clientStatus'), label:Cookies.get('clientStatus')})
   const show = 'relative inline-flex px-6 py-2 lg:px-8 lg:py-3 font-semibold text-lg lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
   const selectStyle = {
     control: (baseStyles, state) => ({
@@ -24,7 +24,7 @@ const EditClient = () => {
   ];
   const formik = useFormik({
     initialValues: {
-      name: clientName.c_name
+      name: Cookies.get('clientName')
     },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -34,9 +34,12 @@ const EditClient = () => {
      handelEdit(values);
     }
   })
+  useEffect(()=>{
+    Cookies.get('EditorTab')===undefined && nav('/')
+  },[])
   const handelEdit = (values) => {
-    axios
-      .put(`https://timesheetapplication.onrender.com/updateClient/${cilentId.id}`, {
+    axiosInstance
+      .put(`/updateClient/${Number(Cookies.get('clientId'))}`, {
         status: value.value,
         name:values.name
       })
@@ -44,13 +47,10 @@ const EditClient = () => {
         nav('/editor/client')
         console.log(res.data)
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        alert(err.response.data.error)
+      })
   }
-  useEffect(() => {
-    if (clientName.c_name === undefined) {
-      nav('/editor/adminDashbord')
-    }
-  }, [])
   return (
     <div className='w-full'>
       <div className='w-11/12 lg:w-1/2 py-8 px-10 lg:py-12 lg:px-20'>

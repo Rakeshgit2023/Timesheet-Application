@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaStar } from "react-icons/fa";
-import axios from "axios";
 import Select from "react-select";
 import Context from "../../../Context/Context";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const Employe_Details = () => {
     const nav = useNavigate();
     const {
@@ -74,8 +75,8 @@ const Employe_Details = () => {
     ];
     const handelFetchEmployeeData = () => {
         setIsProcessing(true);
-        axios
-            .get(`https://timesheetapplication.onrender.com/mydashboard/${employeeId.e_id}`)
+        axiosInstance
+            .get(`/mydashboard/${Cookies.get('employeeId')}`)
             .then((res) => {
                 setEmployeeData(res.data.data.employee_Info);
                 setStatusCount(res.data.data.statusCounts);
@@ -95,8 +96,13 @@ const Employe_Details = () => {
     };
 
     useEffect(() => {
-        setIsProcessing(true);
+        if(Cookies.get('RepoteeTab')!==undefined){
+            setIsProcessing(true);
         handelFetchEmployeeData();
+        }
+        else{
+            nav('/')
+        }
     }, []);
     const handelFilterStatus=(status)=>{
         console.log('rakesh')

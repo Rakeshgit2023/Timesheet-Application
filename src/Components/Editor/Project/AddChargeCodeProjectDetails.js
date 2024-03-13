@@ -1,16 +1,15 @@
 import React, { useContext, useState } from "react";
 import Select from 'react-select';
-import Context from "../../../Context/Context";
 import { RxCross1 } from "react-icons/rx";
 import axios from "axios";
-const API = 'https://timesheetapplication.onrender.com/addChargeActivity'
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const AddChargeCodeProjectDetails = ({ visible, onClose }) => {
     const [value1, setValue1] = useState('');
     const [value2, setValue2] = useState('');
     const [value3, setValue3] = useState('');
     const [note, setNote] = useState('');
     const [description, setDescription] = useState('');
-    const { projectName, projectId } = useContext(Context);
     const options1 = [
         { value: 'JMCOE0B006', label: 'JMCOE0B006' },
         { value: 'JMSET0B003', label: 'JMSET0B003' },
@@ -39,7 +38,7 @@ const AddChargeCodeProjectDetails = ({ visible, onClose }) => {
     const handleSubmit = (e) => {
         // e.preventDefault()
         const req = {
-            projectId: projectId.id,
+            projectId: Number(Cookies.get('projectId')),
             chargeCode: value1.value,
             activityType: value2.value,
             task: value3.value,
@@ -57,8 +56,8 @@ const AddChargeCodeProjectDetails = ({ visible, onClose }) => {
 
     }
     const handleAddNewData = (req) => {
-        axios
-            .post(API, req)
+        axiosInstance
+            .post('/addChargeActivity', req)
             .then((res) => {
                 console.log(res.data)
             })
@@ -85,7 +84,7 @@ const AddChargeCodeProjectDetails = ({ visible, onClose }) => {
                         <h5 className="font-semibold text-gray-700 text-sm lg:text-lg">Project</h5>
                         <input
                             type="text"
-                            value={projectName.name}
+                            value={Cookies.get('projectName')}
                             readOnly={true}
                             className="outline-none border border-5 border-gray-300 bg-gray-100 rounded text-xs lg:text-base p-1 mb-0 lg:mb-2 w-40 lg:w-60"
                         />

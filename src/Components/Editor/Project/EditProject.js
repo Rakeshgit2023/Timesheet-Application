@@ -1,19 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import Select from 'react-select';
+import Select from 'react-select'; 
 import axios from 'axios';
-import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/client';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const EditProject = () => {
   const show='relative inline-flex px-6 py-2 lg:px-8 lg:py-3 font-semibold text-lg lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
   const nav=useNavigate();
   const [option, setOption]=useState([])
   const [isTrue, setIsTrue]=useState(false);
-  const {projectId,projectClientId,projectName,projectClientName,projectDescription,projectNote}=useContext(Context);
-  const [ProjectName, setProjectName]=useState(projectName.name);
-  const [value, setValue]=useState({value:projectClientId.clientId, label:projectClientName.clientName})
-  const [note, setNote]=useState(projectNote.note);
-  const [description, setDescription]=useState(projectDescription.description)
+  const [ProjectName, setProjectName]=useState(Cookies.get('projectName'));
+  const [value, setValue]=useState({value:Number(Cookies.get('projectClientId')), label:Cookies.get('projectClientName')})
+  const [note, setNote]=useState(Cookies.get('projectNotes'));
+  const [description, setDescription]=useState(Cookies.get('projectDescription'))
   const selectStyle = {
     control: (baseStyles, state) => ({
       ...baseStyles,
@@ -23,20 +22,20 @@ const EditProject = () => {
     }),
   }
   const handelGetClientData=()=>{
-    axios
-        .get(API)
+    axiosInstance
+        .get('/client')
         .then((res) => {
           const newOptions = res.data.data.map((e) => ({ value: e.clientId, label: e.name }));         setOption(newOptions);
         })
         .catch((err) => {
             console.log('Data Process Error');
-            console.log(err.message)
+            alert(err.message)
         });
  }
  const handelEdit = () => {
    if(ProjectName!==''){
-    axios
-     .put(`https://timesheetapplication.onrender.com/updateProject/${projectId.id}`, {
+    axiosInstance
+     .put(`/updateProject/${Cookies.get('projectId')}`, {
        name: ProjectName,
        notes:note,
        descriptions:description,
@@ -54,6 +53,7 @@ const EditProject = () => {
  }
  useEffect(()=>{
   handelGetClientData();
+  Cookies.get('EditorTab')===undefined && nav('/')
  },[])
   return (
     <div className='w-full'>

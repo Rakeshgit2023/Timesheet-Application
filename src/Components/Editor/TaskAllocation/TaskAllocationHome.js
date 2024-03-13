@@ -2,10 +2,12 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/task';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const TaskAllocationHome = () => {
+    const editor=Cookies.get('EditorTab') 
+    const viewer=Cookies.get('ViewerTab')
     const [apiData, setApiData] = useState([]);
     const [filterApiData, setFilterApiData] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -14,40 +16,44 @@ const TaskAllocationHome = () => {
     const {setTaskId,setTaskName,setTaskEmployeeId,setTaskEmployeeName,setTaskClientId,setTaskProjectId,setTaskProjectName,setTaskChargeCode,setTaskActivityType,setTaskEstimatedHours,setTaskBillable,setTaskStartDate,setTaskEndDate,setTaskNote}=useContext(Context);
     const nav = useNavigate();
     const handelRow=(row)=>{
-        nav('/editor/taskDetails')
-        const id=row.taskId;
-        const t_name=row.task;
-        const e_id=row.employee_Info.employeeId;
-        const e_name=row.employee_Info.fullName;
-        const c_id=row.client_Info.clientId;
-        const p_id=row.project_Info.projectId;
-        const p_name=row.project_Info.name;
-        const c_code=row.chargeCode;
-        const a_type=row.activityType;
-        const e_hours=row.estimatedHours;
-        const billable=row.billable;
-        const s_date=row.startDate;
-        const e_date=row.endDate;
-        const note=row.notes;
-        setTaskId({id});
-        setTaskName({t_name});
-        setTaskEmployeeId({e_id});
-        setTaskEmployeeName({e_name})
-        setTaskClientId({c_id});
-        setTaskProjectId({p_id});
-        setTaskProjectName({p_name})
-        setTaskChargeCode({c_code});
-        setTaskActivityType({a_type});
-        setTaskEstimatedHours({e_hours});
-        setTaskBillable({billable});
-        setTaskStartDate({s_date});
-        setTaskEndDate({e_date});
-        setTaskNote({note});
+        const taskAllocation={
+         taskId:row.taskId,
+         taskName:row.task,
+         employeeId:row.employee_Info.employeeId,
+         employeeName:row.employee_Info.fullName,
+         clientId:row.client_Info.clientId,
+         projectId:row.project_Info.projectId,
+         projectName:row.project_Info.name,
+         chargeCode:row.chargeCode,
+         activityType:row.activityType,
+         estimatedHours:row.estimatedHours,
+         startDate:row.startDate,
+         endDate:row.endDate,
+         note:row.notes
+        }
+
+        Cookies.set('taskAllocation',JSON.stringify(taskAllocation));
+        Cookies.set('taskAllocationBillable',row.billable)
+       editor!==undefined ?  nav('/editor/taskDetails') : nav('/viewer/taskDetails')
+        // setTaskId({id});
+        // setTaskName({t_name});
+        // setTaskEmployeeId({e_id});
+        // setTaskEmployeeName({e_name})
+        // setTaskClientId({c_id});
+        // setTaskProjectId({p_id});
+        // setTaskProjectName({p_name})
+        // setTaskChargeCode({c_code});
+        // setTaskActivityType({a_type});
+        // setTaskEstimatedHours({e_hours});
+        // setTaskBillable({billable});
+        // setTaskStartDate({s_date});
+        // setTaskEndDate({e_date});
+        // setTaskNote({note});
     }
     const handleDataFetch = () => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get('/task')
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data);
@@ -130,10 +136,17 @@ const TaskAllocationHome = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+           setIsProcessing(true);
         handleDataFetch()
+        }else{
+            nav('/')
+        }
+        // setIsProcessing(true);
+        // handleDataFetch()
+        // Cookies.get('EditorTab')===undefined && nav('/')
     }, [])
-
+ 
     const handleFilter = (e) => {
         const newData = filterApiData.filter(row => row.task.toLowerCase().includes(e.target.value.toLowerCase()));
         setApiData(newData)
@@ -169,7 +182,7 @@ const TaskAllocationHome = () => {
 
                                         />
                                         <div className='flex justify-end mt-4'>
-                                            <button onClick={() => nav('/editor/addTask')} className='relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300'>ADD</button>
+                                            <button onClick={() => nav('/editor/addTask')} className={`relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300 ${viewer!==undefined && 'invisible'}`}>ADD</button>
                                         </div>
                                     </>
                                 )

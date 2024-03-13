@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { BsArrowLeftShort, BsSearch } from "react-icons/bs";
 import { PiList } from "react-icons/pi";
@@ -12,15 +12,21 @@ import { IoLogoGameControllerB } from "react-icons/io";
 import { FaRegNewspaper } from "react-icons/fa";
 import { GoStack } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate,useLocation } from "react-router-dom";
 import NavBar from "../NavBar";
 
 const ClientSideBar = () => {
+  const nav=useNavigate();
   const [open, setOpen] = useState(true);
   const [active, setActive] = useState('adminDashbord');
+  const location=useLocation();
+ // console.log(location.pathname.split('/')[2])
   const handelAction = (action) => {
     setActive(action);
   }
+  useEffect(()=>{
+     setActive(location.pathname.split('/')[2])
+  },[location.pathname.split('/')[2]])
   return (
     <div className="flex flex-col">
       <NavBar/>
@@ -36,7 +42,7 @@ const ClientSideBar = () => {
           />
           <Link to='adminDashbord' onClick={() => handelAction('adminDashbord')}>
               <li
-                className={active === 'adminDashbord' ? 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-10 bg-indigo-500' : 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-10'}
+                className={active === 'adminDashbord' || active === 'teamdashborad' || active === 'approvalStatus' ? 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-10 bg-indigo-500' : 'text-white text-xs lg:text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-10'}
               >
                 <span className="text-lg lg:text-2xl block float-left ">
                   <PiList/>
@@ -68,7 +74,7 @@ const ClientSideBar = () => {
           <ul className="pt-2">
             <Link to='client' onClick={() => handelAction('client')}>
               <li
-                className={active === 'client' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'client' || active === 'addClient' || active === 'clientDetails' || active === 'editClient' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
               >
                 <span className="text-lg lg:text-2xl block float-left ">
                   <IoIosPeople />
@@ -83,7 +89,7 @@ const ClientSideBar = () => {
             </Link>
             <Link to="project" onClick={() => handelAction('project')}>
               <li
-                className={active === 'project' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'project' || active === 'addProject' || active === 'projectDetails' || active === 'editProject' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -99,7 +105,7 @@ const ClientSideBar = () => {
             </Link >
             <Link to='chargeActivity' onClick={() => handelAction('chargeActivity')}>
               <li
-                className={active === 'chargeActivity' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'chargeActivity' || active === 'createChargeActivity' || active === 'chargeActivityTypeDetails' || active === 'editChargeActivityType' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -115,7 +121,7 @@ const ClientSideBar = () => {
             </Link>
             <Link to='employee' onClick={() => handelAction('employee')}>
               <li
-                className={active === 'employee' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'employee' || active === 'addEmployee' || active === 'employeeDetails' || active === 'editEmployee' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -131,7 +137,7 @@ const ClientSideBar = () => {
             </Link>
             <Link to='timesheetSetting' onClick={() => handelAction('timesheetSetting')}>
               <li
-                className={active === 'timesheetSetting' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'timesheetSetting' || active === 'addTimeSheetSetting' || active === 'editTimesheetSetting' || active === 'timesheetSettingDetails' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -147,7 +153,7 @@ const ClientSideBar = () => {
             </Link>
             <Link to='taskAllocation' onClick={() => handelAction('taskAllocation')}>
               <li
-                className={active === 'taskAllocation' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'taskAllocation' || active === 'addTask' || active === 'taskDetails' || active === 'editTask' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -158,13 +164,13 @@ const ClientSideBar = () => {
                     }`}
                 >
                   Task Allocation
-                </span>
+                </span> 
               </li>
 
             </Link>
             <Link to='approvals' onClick={() => handelAction('appprovals')}>
               <li
-                className={active === 'approvals' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
+                className={active === 'approvals' || active === 'status' ? 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 rounded-md mt-2 bg-indigo-500' : 'text-white text-sm flex flex-col lg:flex-row items-center gap-x-4 cursor-pointer p-2 hover:text-fuchsia-600 rounded-md mt-2'}
 
               >
                 <span className="text-lg lg:text-2xl block float-left ">
@@ -237,6 +243,6 @@ const ClientSideBar = () => {
       </div>
     </div>
   );
-}
+} 
 
 export default ClientSideBar;

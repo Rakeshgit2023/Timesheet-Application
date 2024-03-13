@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react';
 import Select from 'react-select';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-const API = 'https://timesheetapplication.onrender.com/project';
-const api = 'https://timesheetapplication.onrender.com/addChargeActivity';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const CreateChargeActivityType = () => {
   const show = 'relative inline-flex px-6 py-1 lg:px-8 lg:py-3 font-semibold text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
   const nav = useNavigate();
@@ -40,8 +39,8 @@ const CreateChargeActivityType = () => {
     }),
   }
   const handelGetProjectData = () => {
-    axios
-      .get(API)
+    axiosInstance
+      .get('/project')
       .then((res) => {
         const newOptions = res.data.data.map((e) => ({ value: e.projectId, label: e.name }));
         setOption(newOptions);
@@ -53,6 +52,7 @@ const CreateChargeActivityType = () => {
   }
   useEffect(() => {
     handelGetProjectData();
+    Cookies.get('EditorTab')===undefined && nav('/')
   }, [])
   const handleSubmit = (e) => {
     //  e.preventDefault()
@@ -69,8 +69,8 @@ const CreateChargeActivityType = () => {
   }
   const handleAddNewData = (req) => {
     if (value !== '' && value1 !== '' && value2 !== '' && value3 !== '') {
-      axios
-        .post(api, req)
+      axiosInstance
+        .post('/addChargeActivity', req)
         .then((res) => {
           console.log(res.data)
           nav('/editor/chargeActivity')

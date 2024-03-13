@@ -5,13 +5,15 @@ import { TbPointFilled } from "react-icons/tb";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
 import Context from "../../../Context/Context";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const TeamDashbord = () => {
     const nav=useNavigate();
     const {setApprovals_Week, setApprovals_Id, setApprovals_TaskStatus, setApprovals_TotalHours, setApprovals_Task, setApprovals_EmpName, setApproval_EmpEmail}=useContext(Context)
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
-    const [employeeId, setEmployeeId]=useState(1001)
+    const [employeeId, setEmployeeId]=useState('')
     const [employeeName, setEmployeeName]=useState('Rakesh Shaw')
     const [statusCount, setStatusCount]=useState('');
     const [directRepotees, setDirectRepotees]=useState([]);
@@ -20,8 +22,8 @@ const TeamDashbord = () => {
     const [request, setRequest]=useState([]);
     const handleDataFetchTeamDashbordData = (empId) => {
         setIsProcessing(true)
-        axios
-            .get(`https://timesheetapplication.onrender.com/teamdashboard/${empId}`)
+        axiosInstance
+            .get(`/teamdashboard/${empId}`)
             .then((res) => {
                 console.log('Data Process Successfuly');
                 setStatusCount(res.data.data[0].statusCounts);
@@ -40,20 +42,44 @@ const TeamDashbord = () => {
         
     }
     useEffect(() => {
-        setIsProcessing(true);
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+         if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setIsProcessing(true);
+            setEmployeeName(JSON.parse(Cookies.get('userInfo')).leadName)
+        handleDataFetchTeamDashbordData(JSON.parse(Cookies.get('userInfo')).leadId)
+         }else{
+            nav('/')
+         }
+    }, [])
+    useEffect(()=>{
+        if(employeeId!==''){
+            setIsProcessing(true)
         handleDataFetchTeamDashbordData(employeeId)
-    }, [employeeId])
+        }else{
+
+        }
+    },[employeeId])
     const handelRequest=(task,status,totalHours,weekStart,id,name,email)=>{
         let startDate=weekStart.split('/').reverse().join('-');
         console.log(task,status,totalHours,startDate,id)
-        setApprovals_Week({startDate});
-        setApprovals_Task({task});
-        setApprovals_TaskStatus({status});
-        setApprovals_TotalHours({totalHours});
-        setApprovals_Id({id});
-        setApprovals_EmpName({name});
-        setApproval_EmpEmail({email});
-        nav('/repotingLead/status')
+        const submittedTask={
+            startDate:startDate,
+            task:task,
+            status:status,
+            totalHours:totalHours,
+            id:id,
+            name:name,
+            email:email
+        }
+        Cookies.set('submittedTask',JSON.stringify(submittedTask))
+        // setApprovals_Week({startDate});
+        // setApprovals_Task({task});
+        // setApprovals_TaskStatus({status});
+        // setApprovals_TotalHours({totalHours});
+        // setApprovals_Id({id}); 
+        // setApprovals_EmpName({name});
+        // setApproval_EmpEmail({email});
+        nav('/repotingLead/teamDashboardApprovalStatus')
     }
     return (
         <div className="flex flex-col ml-6 lg:ml-8 mr-2 lg:mr-5 mt-2 lg:mt-5 mb-2 lg:mb-5 overflow-auto scrollbar-hide" style={{ height: '700px' }}>

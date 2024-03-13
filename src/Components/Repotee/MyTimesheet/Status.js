@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
 import { GrNext } from "react-icons/gr";
 import { SlCalender } from "react-icons/sl";
 import { useNavigate } from "react-router-dom";
@@ -8,20 +7,34 @@ import DatePicker from "react-datepicker";
 import Context from "../../../Context/Context";
 import 'react-datepicker/dist/react-datepicker.module.css';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from 'date-fns';
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const Status = () => {
-    const nav = useNavigate();
+    const nav = useNavigate(); 
     const {week,myTimesheetId,myTimesheettTaskStatus,myTimesheetTotalHours,myTimesheetTask}=useContext(Context);
-    const [data, setData] = useState(myTimesheetTask.task);
+    const [data, setData] = useState([]);
+    const [employeeId, setEmployeeId]=useState('')
+    const [leadId, setLeadId]=useState('')
     const [date, setDate] = useState([]);
-    const [totalHours, setTotalHours]=useState(myTimesheetTotalHours.totalHours)
-    const [taskStatus, setTaskStatus]=useState(myTimesheettTaskStatus.status)
-    const [timesheetId, setTimesheetId]=useState(myTimesheetId.id)
-    const [selectedDate, setSelectedDate] = useState(new Date(week.startDate));
+    const [totalHours, setTotalHours]=useState('')
+    const [taskStatus, setTaskStatus]=useState('')
+    const [timesheetId, setTimesheetId]=useState('')
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [opens, setOpens] = useState(false);
     const [tableData, setTableData] = useState([]);
-    useEffect(()=>{
-    console.log(week.startDate,myTimesheetTask.task,myTimesheetTotalHours.totalHours,myTimesheettTaskStatus.status)
-    console.log(data)
+    useEffect(()=>{ 
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setData(JSON.parse(Cookies.get('myTimesheetTask')).task)
+            setTotalHours(JSON.parse(Cookies.get('myTimesheetTask')).totalHours)
+            setTaskStatus(JSON.parse(Cookies.get('myTimesheetTask')).status)
+            setTimesheetId(JSON.parse(Cookies.get('myTimesheetTask')).id)
+            setSelectedDate(new Date(JSON.parse(Cookies.get('myTimesheetTask')).startDate))
+            setEmployeeId(JSON.parse(Cookies.get('userInfo')).employeeId)
+            setLeadId(JSON.parse(Cookies.get('userInfo')).leadId)
+        }else{
+            nav('/')
+        }
     },[])
     const showData = () => {
         setData([...data,{
@@ -36,10 +49,10 @@ const Status = () => {
         console.log('rakesh')
         var u_date=new Date();
         var updateDate=`${u_date.getFullYear()}-${u_date.getMonth+1}-${u_date.getDay}`
-       axios
-    .put(`https://timesheetapplication.onrender.com/updateMyTimesheet/${timesheetId}`, {
-        employeeId:1000,
-            leadId:1001,
+       axiosInstance
+    .put(`/updateMyTimesheet/${timesheetId}`, {
+        employeeId:employeeId,
+            leadId:leadId,
             status:taskStatus,
             weekRange:updateDate,
             tasks:data
@@ -47,7 +60,7 @@ const Status = () => {
     .then(res => {
      // nav('/editor/chargeActivity')
       console.log(res.data)
-      handelSavedData();
+      handelSavedData(employeeId);
     })
     .catch(err => alert(err))
     }
@@ -59,16 +72,16 @@ const Status = () => {
             setData(newData)
         ],1)
         console.log(index);
-        console.log(data);
+       console.log(data);
     }
     console.log(data);
     const startWeek = startOfWeek(selectedDate);
     const endWeek = endOfWeek(selectedDate);
     console.log(selectedDate);
-    const handelSavedData=(selectedDate)=>{
+    const handelSavedData=(employeeId)=>{
         console.log(format(startWeek,'d/M/yyyy'))
-        axios
-        .get(`https://timesheetapplication.onrender.com/mytimesheet/1000/${format(startWeek,'d/M/yyyy')}`)
+        axiosInstance
+        .get(`/mytimesheet/${employeeId}/${format(startWeek,'d/M/yyyy')}`)
         .then((res) => {
           console.log("Data Process Successfuly");
             setData([])
@@ -102,7 +115,7 @@ const Status = () => {
                     <SlCalender className="text-xl lg:text-3xl ml-3 lg:ml-4" onClick={() => setOpens(!opens)} />
                     <DatePicker className='invisible' selected={selectedDate} dateFormat="dd/MM/y" open={opens} />
                 </div>
-                {taskStatus!=='submit' && <button className="relative inline-flex px-4 py-1 lg:px-8 lg:py-3 font-semibold text-xs lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full whitespace-nowrap absolute lg:relative -ml-40 lg-ml-0" onClick={showData}>Add Task</button>}
+                {taskStatus==='draft' && <button className="relative inline-flex px-4 py-1 lg:px-8 lg:py-3 font-semibold text-xs lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full whitespace-nowrap absolute lg:relative -ml-40 lg-ml-0" onClick={showData}>Add Task</button>}
             </div>
             <div className="flex flex-col mt-4 bg-slate-600">
                 <div className="flex w-full">
@@ -151,8 +164,8 @@ const Status = () => {
                     <span className="text-sm lg:text-lg font-normal text-slate-600 whitespace-nowrap">View Upload:</span>
                 </div>
                 <div className='flex  gap-3 lg:gap-10 ml-44 mt-10 lg:mt-0 lg:ml-0'>
-                    <button className={taskStatus==='submit' ? 'relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl bg-gray-200 font-semibold text-gray-400 traking-widset rounded-full border-solid border-2 border-gray-400 ' : 'relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300'} onClick={taskStatus==='submit' ? null : ()=> handelEdit(taskStatus)}>Save</button>
-                    <button className='relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300 mr-10' onClick={()=>handelEdit('submit')}>Submit</button>
+                    {taskStatus==='draft' && <button className='relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300' onClick={()=> handelEdit(taskStatus)}>Save</button>}
+                    {taskStatus==='draft' && <button className='relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300 mr-10' onClick={()=>handelEdit('submit')}>Submit</button>}
                 </div>
             </div>
         </div>

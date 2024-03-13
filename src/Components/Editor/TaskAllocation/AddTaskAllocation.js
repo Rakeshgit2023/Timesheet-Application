@@ -2,8 +2,8 @@ import React, { useContext, useEffect } from 'react'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import axios from 'axios';
-const API='https://timesheetapplication.onrender.com/addTask';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const AddTaskAllocation=()=> {
     const nav=useNavigate();
     const [value, setValue]=useState('');
@@ -56,8 +56,8 @@ const AddTaskAllocation=()=> {
     handleAddNewData(req); 
 }
 const handleAddNewData =(req)=>{
-    axios
-    .post(API,req)
+    axiosInstance
+    .post('/addTask',req)
     .then((res)=> {
       console.log(res.data)
        nav('/editor/taskAllocation')
@@ -75,8 +75,8 @@ const handeFetchCurrentDate=()=>{
   setEndDate(display)
 }
   const handelFetchEmployee=()=>{
-    axios
-    .get('https://timesheetapplication.onrender.com/employee')
+    axiosInstance
+    .get('/employee')
     .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.status === 'active')
@@ -90,8 +90,8 @@ const handeFetchCurrentDate=()=>{
   }
   const handelFetchClientData=()=>{
     console.log(e_value.value)
-    axios
-    .get('https://timesheetapplication.onrender.com/timesheetsetting')
+    axiosInstance
+    .get('/timesheetsetting')
     .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.employee_Info.employeeId===e_value.value)
@@ -105,8 +105,8 @@ const handeFetchCurrentDate=()=>{
   }
   const handelFetchProjectData=()=>{
     console.log(c_value.value)
-    axios
-    .get('https://timesheetapplication.onrender.com/project')
+    axiosInstance
+    .get('/project')
     .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.client_Info.clientId===c_value.value)
@@ -119,8 +119,8 @@ const handeFetchCurrentDate=()=>{
     })
   }
 const handelFetchChargeCode=()=>{
-    axios
-    .get('https://timesheetapplication.onrender.com/chargeactivity')
+    axiosInstance
+    .get('/chargeactivity')
     .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.project_Info.projectId===p_value.value)
@@ -133,8 +133,8 @@ const handelFetchChargeCode=()=>{
     })
 }
 const handelFetchActivityType=()=>{
-    axios
-    .get('https://timesheetapplication.onrender.com/chargeactivity')
+    axiosInstance
+    .get('/chargeactivity')
     .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.chargeActivityId===charge_value.value)
@@ -147,8 +147,8 @@ const handelFetchActivityType=()=>{
     })
 }
 const handelFetchTask=()=>{
-    axios
-    .get('https://timesheetapplication.onrender.com/chargeactivity')
+    axiosInstance
+    .get('/chargeactivity')
     .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.chargeActivityId===activity_value.value)
@@ -163,9 +163,10 @@ const handelFetchTask=()=>{
   useEffect(()=>{
     handelFetchEmployee()
     handeFetchCurrentDate()
+    Cookies.get('EditorTab')===undefined && nav('/')
   },[])
   useEffect(()=>{
-        handelFetchClientData()
+        handelFetchClientData() 
   },[e_value.value])
   useEffect(()=>{
     handelFetchProjectData()

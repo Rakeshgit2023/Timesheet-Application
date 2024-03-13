@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
 import { GrNext } from "react-icons/gr";
 import { SlCalender } from "react-icons/sl";
 import { useNavigate } from "react-router-dom";
@@ -8,20 +7,34 @@ import DatePicker from "react-datepicker";
 import Context from "../../../Context/Context";
 import 'react-datepicker/dist/react-datepicker.module.css';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from 'date-fns';
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const TimesheetStatus = () => {
-    const nav = useNavigate();
+    const nav = useNavigate(); 
     const {week,myTimesheetId,myTimesheettTaskStatus,myTimesheetTotalHours,myTimesheetTask}=useContext(Context);
-    const [data, setData] = useState(myTimesheetTask.task);
+    const [data, setData] = useState([]);
+    const [employeeId, setEmployeeId]=useState('')
+    const [leadId, setLeadId]=useState('')
     const [date, setDate] = useState([]);
-    const [totalHours, setTotalHours]=useState(myTimesheetTotalHours.totalHours)
-    const [taskStatus, setTaskStatus]=useState(myTimesheettTaskStatus.status)
-    const [timesheetId, setTimesheetId]=useState(myTimesheetId.id)
-    const [selectedDate, setSelectedDate] = useState(new Date(week.startDate));
+    const [totalHours, setTotalHours]=useState('')
+    const [taskStatus, setTaskStatus]=useState('')
+    const [timesheetId, setTimesheetId]=useState('')
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [opens, setOpens] = useState(false);
     const [tableData, setTableData] = useState([]);
-    useEffect(()=>{
-    console.log(week.startDate,myTimesheetTask.task,myTimesheetTotalHours.totalHours,myTimesheettTaskStatus.status)
-    console.log(data)
+    useEffect(()=>{ 
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('EmployeeTab')!==undefined){
+            setData(JSON.parse(Cookies.get('myTimesheetTask')).task)
+            setTotalHours(JSON.parse(Cookies.get('myTimesheetTask')).totalHours)
+            setTaskStatus(JSON.parse(Cookies.get('myTimesheetTask')).status)
+            setTimesheetId(JSON.parse(Cookies.get('myTimesheetTask')).id)
+            setSelectedDate(new Date(JSON.parse(Cookies.get('myTimesheetTask')).startDate))
+            setEmployeeId(JSON.parse(Cookies.get('userInfo')).employeeId)
+            setLeadId(JSON.parse(Cookies.get('userInfo')).leadId)
+        }else{
+            nav('/')
+        }
     },[])
     const showData = () => {
         setData([...data,{
@@ -36,10 +49,10 @@ const TimesheetStatus = () => {
         console.log('rakesh')
         var u_date=new Date();
         var updateDate=`${u_date.getFullYear()}-${u_date.getMonth+1}-${u_date.getDay}`
-       axios
-    .put(`https://timesheetapplication.onrender.com/updateMyTimesheet/${timesheetId}`, {
-        employeeId:1000,
-            leadId:1001,
+       axiosInstance
+    .put(`/updateMyTimesheet/${timesheetId}`, {
+        employeeId:employeeId,
+            leadId:leadId,
             status:taskStatus,
             weekRange:updateDate,
             tasks:data
@@ -47,7 +60,7 @@ const TimesheetStatus = () => {
     .then(res => {
      // nav('/editor/chargeActivity')
       console.log(res.data)
-      handelSavedData();
+      handelSavedData(employeeId);
     })
     .catch(err => alert(err))
     }
@@ -59,16 +72,16 @@ const TimesheetStatus = () => {
             setData(newData)
         ],1)
         console.log(index);
-        console.log(data);
+       console.log(data);
     }
     console.log(data);
     const startWeek = startOfWeek(selectedDate);
     const endWeek = endOfWeek(selectedDate);
     console.log(selectedDate);
-    const handelSavedData=(selectedDate)=>{
+    const handelSavedData=(employeeId)=>{
         console.log(format(startWeek,'d/M/yyyy'))
-        axios
-        .get(`https://timesheetapplication.onrender.com/mytimesheet/1000/${format(startWeek,'d/M/yyyy')}`)
+        axiosInstance
+        .get(`/mytimesheet/${employeeId}/${format(startWeek,'d/M/yyyy')}`)
         .then((res) => {
           console.log("Data Process Successfuly");
             setData([])
@@ -78,7 +91,7 @@ const TimesheetStatus = () => {
             setTimeout(()=>{
               setData(res.data.data[0].tasks);
             },0.001)
-        })
+        }) 
         .catch((err) => {
           console.log("Data Process Error");
           console.log(err);

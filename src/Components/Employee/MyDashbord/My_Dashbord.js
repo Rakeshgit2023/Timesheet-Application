@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { IoEyeSharp } from "react-icons/io5";
 import { FaStar } from "react-icons/fa";
-import axios from "axios";
 import Select from "react-select";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const My_Dashbord = () => {
-    const nav = useNavigate();
+    const nav = useNavigate(); 
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState("");
@@ -60,10 +61,10 @@ const My_Dashbord = () => {
             body: "quia et suscipit\nsusc",
         },
     ];
-    const handelFetchEmployeeData = () => {
+    const handelFetchEmployeeData = (employeeId) => {
         setIsProcessing(true);
-        axios
-            .get(`https://timesheetapplication.onrender.com/mydashboard/1000`)
+        axiosInstance
+            .get(`/mydashboard/${employeeId}`)
             .then((res) => {
                 setEmployeeData(res.data.data.employee_Info);
                 setStatusCount(res.data.data.statusCounts);
@@ -83,8 +84,14 @@ const My_Dashbord = () => {
     };
 
     useEffect(() => {
-        setIsProcessing(true);
-        handelFetchEmployeeData();
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        console.log(userData)
+        if(userData!==null && Cookies.get('EmployeeTab')!==undefined){
+            setIsProcessing(true);
+        handelFetchEmployeeData(JSON.parse(Cookies.get('userInfo')).employeeId);
+        }else{
+            nav('/')
+        }
     }, []);
     const handelFilterStatus=(status)=>{
         console.log('rakesh')

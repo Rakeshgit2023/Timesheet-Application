@@ -2,27 +2,21 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/project';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const ProjectHome = () => {
+    const editor=Cookies.get('EditorTab') 
+    const viewer=Cookies.get('ViewerTab')
     const [apiData, setApiData] = useState([]);
     const [filterApiData, setFilterApiData] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
     const nav = useNavigate();
-    const {setProjectId}=useContext(Context);
-    const {setProjectClientId}=useContext(Context);
-    const {setProjectName}=useContext(Context);
-    const {setProjectClientName}=useContext(Context);
-    const {setProjectClientStatus}=useContext(Context);
-    const {setProjectDescription}=useContext(Context);
-    const {setProjectNote}=useContext(Context);
     const handleDataFetch = () => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get('/project')
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data);
@@ -38,21 +32,14 @@ const ProjectHome = () => {
             .finally(() => setIsProcessing(false))
     }
     const handelRow=(row)=>{
-        nav('/editor/projectDetails')
-        const id=row.projectId;
-        const clientId=row.client_Info.clientId;
-        const name=row.name;
-        const clientName=row.client_Info.name;
-        const description=row.descriptions;
-        const note=row.notes;
-        const status=row.client_Info.status;
-        setProjectId({id})
-        setProjectClientId({clientId});
-        setProjectName({name});
-        setProjectClientName({clientName});
-        setProjectClientStatus({status})
-        setProjectDescription({description});
-        setProjectNote({note})
+        Cookies.set('projectId',row.projectId);
+        Cookies.set('projectClientId',row.client_Info.clientId);
+        Cookies.set('projectName',row.name);
+        Cookies.set('projectClientName',row.client_Info.name)
+        Cookies.set('projectClientStatus',row.client_Info.status)
+        Cookies.set('projectDescription',row.descriptions)
+        Cookies.set('projectNotes',row.notes)
+        editor!==undefined ? nav('/editor/projectDetails') : nav('/viewer/projectDetails')
     }
     const columns = [
         {
@@ -106,8 +93,15 @@ const ProjectHome = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
-        handleDataFetch()
+        if(editor!==undefined || viewer!==undefined){
+            setIsProcessing(true);
+            handleDataFetch()
+        }else{
+            nav('/')
+        }
+        //Cookies.get('EditorTab')===undefined && nav('/')
+        // Cookies.remove('submittedTask')
+        //         Cookies.remove('teamDashboardEmployee')
     }, [])
 
     const handleFilter = (e) => {
@@ -144,7 +138,7 @@ const ProjectHome = () => {
                                             
                                         />
                                         <div className='flex justify-end mt-4'>
-                                            <button onClick={() => nav('/editor/addProject')} className='relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300'>ADD</button>
+                                            <button onClick={() => nav('/editor/addProject')} className={`relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300 ${viewer!==undefined && 'invisible'}`}>ADD</button>
                                         </div>
                                     </>
                                 )

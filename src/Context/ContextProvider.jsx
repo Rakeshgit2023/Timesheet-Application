@@ -73,6 +73,7 @@ const ContextProvider = ({children}) =>{
      const [approvals_Task, setApprovals_Task]=useState('');
      const [approvals_EmpName,setApprovals_EmpName] = useState('');
      const [approvals_EmpEmail, setApproval_EmpEmail] = useState('')
+
      
 
      return(
@@ -145,7 +146,7 @@ const ContextProvider = ({children}) =>{
             approvals_TotalHours, setApprovals_TotalHours,
             approvals_Task, setApprovals_Task,
             approvals_EmpName,setApprovals_EmpName,
-            approvals_EmpEmail, setApproval_EmpEmail
+            approvals_EmpEmail, setApproval_EmpEmail,
         }}>
             {children}
         </Context.Provider>

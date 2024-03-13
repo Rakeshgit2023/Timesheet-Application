@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import axios from 'axios';
-const API='https://timesheetapplication.onrender.com/addTimesheetSetting';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const Add_TimesheetSetting = () => {
   const nav = useNavigate();
   const show = 'relative inline-flex px-4 py-1 lg:px-8 lg:py-3 text-lg lg:text-xl font-semibold traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
@@ -29,22 +29,22 @@ const Add_TimesheetSetting = () => {
       backgroundColor: "white"
     }),
   }
-  const handelFetchEmployee = () => {
-    axios
-      .get('https://timesheetapplication.onrender.com/employee/1000')
+  const handelFetchEmployee = (employeeId) => {
+    axiosInstance
+      .get(`/employee/${employeeId}`)
       .then((res) => {
         const newOptions = res.data.data.map((e) => ({ value: e.employeeId, label: e.fName + ' ' + e.lName }));
         setE_Option(newOptions);
         console.log(newOptions)
       })
       .catch((err) => {
-        console.log('Data Process Error');
+        console.log('Data Process Error'); 
         console.log(err.message)
       });
   }
-  const handelFetchClient = () => {
-    axios
-      .get('https://timesheetapplication.onrender.com/client/1000')
+  const handelFetchClient = (employeeId) => {
+    axiosInstance
+      .get(`/client/${employeeId}`)
       .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.status === 'active')
@@ -59,8 +59,15 @@ const Add_TimesheetSetting = () => {
       });
   }
   useEffect(() => {
-    handelFetchEmployee();
-    handelFetchClient();
+    let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+    if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+      handelFetchEmployee(JSON.parse(Cookies.get('userInfo')).employeeId);
+    handelFetchClient(JSON.parse(Cookies.get('userInfo')).employeeId);
+    }else{
+      nav('/')
+    }
+    
+    //Cookies.get('RepoteeTab')===undefined && nav('/')
   }, [])
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -77,8 +84,8 @@ const Add_TimesheetSetting = () => {
 
   }
   const handleAddNewData = (req) => {
-     axios
-      .post(API, req)
+     axiosInstance
+      .post('/addTimesheetSetting', req)
       .then((res) => {
         console.log(res.data)
         nav('/repotingLead/timesheetSetting')

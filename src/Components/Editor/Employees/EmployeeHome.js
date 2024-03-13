@@ -2,11 +2,11 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/employee';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const EmployeeHome = () => {
-    const {setEmployeeId,setFirstName,setLastName,setEmail,setGender,setStatus,setLeadId,setLeadName}=useContext(Context);
+    const editor=Cookies.get('EditorTab')
+    const viewer=Cookies.get('ViewerTab')
     const [activeState, setActiveState] = useState(true);
     const [inActiveState, setInActiveState] = useState(false);
     //const [relivedState, setRelivedState] = useState(false);
@@ -22,8 +22,8 @@ const EmployeeHome = () => {
  
     const handleDataFetch = () => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get('/employee')
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data.data);
@@ -69,24 +69,8 @@ const EmployeeHome = () => {
     //     setRelivedState(true);
     // }
     const handelRow=(row)=>{
-          const e_id=row.employeeId;
-          const fName=row.fName;
-          const lName=row.lName;
-          const email=row.email;
-          const status=row.status;
-          const l_id=row.leadId;
-          const l_name=row.leadName
-          const gen=row.gender;
-          nav('/editor/employeeDetails');
-          setEmployeeId({e_id});
-          setFirstName({fName});
-          setLastName({lName});
-          setEmail({email});
-          setStatus({status});
-          setLeadId({l_id});
-          setLeadName({l_name})
-          setGender({gen});
-          //console.log(e_id,fName,lName,email,status,l_id,gen)
+        Cookies.set('employeeId',row.employeeId);
+           editor!==undefined ? nav('/editor/employeeDetails') : nav('/viewer/employeeDetails')
     }
     const columns = [
         {
@@ -146,8 +130,15 @@ const EmployeeHome = () => {
     }
  
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+            setIsProcessing(true);
         handleDataFetch()
+        }else{
+            nav('/')
+        }
+        // setIsProcessing(true);
+        // handleDataFetch()
+        // Cookies.get('EditorTab')===undefined && nav('/')
     }, [])
  
     const handleActiveFilter = (e) => {
@@ -273,7 +264,7 @@ const EmployeeHome = () => {
  
             }
             <div className='flex justify-end mt-4'>
-                <button className='relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300' onClick={() => nav('/editor/addEmployee')}>ADD</button>
+                <button className={`relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300 ${viewer!==undefined && 'invisible'}`} onClick={() => nav('/editor/addEmployee')}>ADD</button>
             </div>
         </div>
     )

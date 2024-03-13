@@ -4,16 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import axios from 'axios';
 import Context from '../../../Context/Context';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const EditTimesheetSetting = () => {
   const nav = useNavigate();
   const { timesheetId, timesheetEmployeeName, timesheetEmployeeId, timesheetClientName, timesheetClientId, location, startDate, endDate } = useContext(Context);
   const show = 'relative inline-flex px-6 py-2 lg:px-8 lg:py-3 font-semibold text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
-  const [periodStart, setPeriodStart] = useState(startDate.s_date);
-  const [periodEnd, setPeriodEnd] = useState(endDate.e_date);
-  const [c_value, setC_Value] = useState({ value: timesheetClientId.c_id, label: timesheetClientName.c_name });
+  const [periodStart, setPeriodStart] = useState(Cookies.get('timesheetSettingStartDate'));
+  const [periodEnd, setPeriodEnd] = useState(Cookies.get('timesheetSettingEndDate'));
+  const [c_value, setC_Value] = useState({ value: Number(Cookies.get('timesheetSettingClientId')), label: Cookies.get('timesheetSettingClientName') });
   const [c_option, setC_Option] = useState([]);
-  const [value, setValue] = useState({ value: location.location, label: location.location });
-  const [note, setNote] = useState('');
+  const [value, setValue] = useState({ value: Cookies.get('timesheetSettingLocation'), label: Cookies.get('timesheetSettingLocation') });
+  const [note, setNote] = useState(Cookies.get('timesheetSettingNote'));
   const options = [
     { value: 'kolkata', label: 'kolkata' },
     { value: 'indore', label: 'indore' },
@@ -29,8 +31,8 @@ const EditTimesheetSetting = () => {
     }),
   }
   const handelFetchClient = () => {
-    axios
-      .get('https://timesheetapplication.onrender.com/client')
+    axiosInstance
+      .get('/client')
       .then((res) => {
         const newOptions = res.data.data
           .filter((e) => e.status === 'active')
@@ -46,10 +48,11 @@ const EditTimesheetSetting = () => {
   }
   useEffect(() => {
     handelFetchClient();
+    Cookies.get('EditorTab')===undefined && nav('/')
   }, [])
   const handelEdit = () => {
-    axios
-      .put(`https://timesheetapplication.onrender.com/updateTimesheetSetting/${timesheetId.id}`, {
+    axiosInstance
+      .put(`/updateTimesheetSetting/${Cookies.get('timesheetSettingId')}`, {
         employeeId: timesheetEmployeeId.e_id,
         clientId: c_value.value,
         location: value.value,
@@ -75,7 +78,7 @@ const EditTimesheetSetting = () => {
             Employee
           </h3>
           <div className="flex w-90 flex-col gap-6 ">
-            <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={timesheetEmployeeName.e_name}></input>
+            <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingEmployeeName')}></input>
           </div>
         </div>
         <div className='py-6'>
@@ -107,7 +110,7 @@ const EditTimesheetSetting = () => {
             Period Start
           </h3>
           <div className="flex  w-90  flex-col gap-6 ">
-            <input className='outline-none cursor-pointer border-5 border-gray-400 rounded px-4 py-3 lg:py-2 text-xs lg:text-base mr-2 w-full font-normal text-lg' type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} />
+            <input className='outline-none cursor-pointer border-5 border-gray-400 rounded px-4 py-3 lg:py-2 text-xs lg:text-base mr-2 w-full font-normal text-lg' type="date" value={Cookies.get('timesheetSettingStartDate')} onChange={(e) => setPeriodStart(e.target.value)} />
           </div>
         </div>
         <div className='py-6'>
@@ -115,7 +118,7 @@ const EditTimesheetSetting = () => {
             Period End
           </h3>
           <div className="flex  w-90  flex-col gap-6 ">
-            <input className='outline-none cursor-pointer border-5 border-gray-400 rounded px-4 py-3 lg:py-2 text-xs lg:text-base mr-2 w-full font-normal text-lg' type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
+            <input className='outline-none cursor-pointer border-5 border-gray-400 rounded px-4 py-3 lg:py-2 text-xs lg:text-base mr-2 w-full font-normal text-lg' type="date" value={Cookies.get('timesheetSettingEndDate')} onChange={(e) => setPeriodEnd(e.target.value)} />
           </div>
         </div>
       </div>

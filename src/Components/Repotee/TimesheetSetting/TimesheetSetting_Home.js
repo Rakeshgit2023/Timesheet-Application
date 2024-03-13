@@ -3,7 +3,8 @@ import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Context from '../../../Context/Context';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const API = 'https://timesheetapplication.onrender.com/timesheetsetting/1000';
 const TimesheetSetting_Home = () => {
     const [apiData, setApiData] = useState([]);
@@ -12,38 +13,23 @@ const TimesheetSetting_Home = () => {
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
     const nav = useNavigate();
-    const {setTimesheetId,setTimesheetEmployeeId,setTimesheetEmployeeName,setTimesheetEmployeeStatus,setTimesheetClientName,setTimesheetClientId,setLocation,setNote,setStartDate,setEndDate}=useContext(Context);
-
     const handelRow=(row)=>{
+        Cookies.set('timesheetSettingId', row.timesheetId)
+        Cookies.set('timesheetSettingEmployeeId',row.employee_Info.employeeId);
+        Cookies.set('timesheetSettingEmployeeName',row.fullName)
+        Cookies.set('timesheetSettingEmployeeStatus',row.employee_Info.status)
+        Cookies.set('timesheetSettingClientName',row.client_Info.name)
+        Cookies.set('timesheetSettingClientId',row.client_Info.clientId)
+        Cookies.set('timesheetSettingLocation',row.location)
+        Cookies.set('timesheetSettingNote',row.notes)
+        Cookies.set('timesheetSettingStartDate',row.startDate)
+        Cookies.set('timesheetSettingEndDate',row.endDate)
         nav('/repotingLead/timesheetSettingDetails')
-        const id=row.timesheetId;
-        const e_id=row.employee_Info.employeeId
-        const e_name=row.fullName;
-        const e_status=row.employee_Info.status
-        const c_name=row.client_Info.name;
-        const c_id=row.client_Info.clientId;
-        const location=row.location;
-        const note=row.notes;
-        const s_date=row.startDate;
-        const e_date=row.endDate;
-        console.log(e_name)
-
-        setTimesheetId({id});
-        setTimesheetEmployeeId({e_id});
-        setTimesheetEmployeeName({e_name});
-        setTimesheetEmployeeStatus({e_status})
-        setTimesheetClientName({c_name});
-        setTimesheetClientId({c_id});
-        setLocation({location});
-        setNote({note});
-        setStartDate({s_date});
-        setEndDate({e_date});
-
     }
-    const handleDataFetch = () => {
+    const handleDataFetch = (employeeId) => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get(`/timesheetsetting/${employeeId}`)
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data);
@@ -120,11 +106,16 @@ const TimesheetSetting_Home = () => {
 
             }
         }
-    }
+    } 
 
     useEffect(() => {
-        setIsProcessing(true);
-        handleDataFetch()
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setIsProcessing(true);
+        handleDataFetch(JSON.parse(Cookies.get('userInfo')).employeeId)
+        }else{
+            nav('/')
+        }
     }, [])
 
     const handleFilter = (e) => {

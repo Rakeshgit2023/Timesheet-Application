@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
 import { GrNext } from "react-icons/gr";
 import { SlCalender } from "react-icons/sl";
 import { useNavigate } from "react-router-dom";
@@ -10,16 +9,18 @@ import { AiOutlineMail } from "react-icons/ai";
 import { CiCircleCheck } from "react-icons/ci";
 import 'react-datepicker/dist/react-datepicker.module.css';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from 'date-fns';
-const Approval_Status = () => {
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
+const Approval_Status = () => { 
     const nav = useNavigate();
+    const [approvalTask ,setApprovalTask]=useState('')
     const { approvals_Week, approvals_Id, approvals_TaskStatus, approvals_TotalHours, approvals_Task, approvals_EmpName, approvals_EmpEmail } = useContext(Context);
-    const [data, setData] = useState(approvals_Task.task);
+    const [data, setData] = useState([]);
 
-    const [selectedDate, setSelectedDate] = useState(new Date(approvals_Week.startDate));
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
-    const startWeek = startOfWeek(selectedDate);
-    const endWeek = endOfWeek(selectedDate);
-    console.log(selectedDate);
+    const [startWeek, setStartWeek]=useState(startOfWeek(selectedDate));
+    const [endWeek, setEndWeek]=useState(endOfWeek(selectedDate));
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -39,8 +40,8 @@ const Approval_Status = () => {
         console.log('rakesh')
         // var u_date=new Date();
         // var updateDate=`${u_date.getFullYear()}-${u_date.getMonth+1}-${u_date.getDay}`
-        axios
-            .put(`https://timesheetapplication.onrender.com/updateApproval/${approvals_Id.id}`, {
+        axiosInstance
+            .put(`/updateApproval/${approvalTask.id}`, {
 
                 status: taskStatus
             })
@@ -52,13 +53,21 @@ const Approval_Status = () => {
             .catch(err => alert(err))
     }
 
-    useEffect(() => {
-        console.log(approvals_Task.task);
+    useEffect(() => { 
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setApprovalTask(JSON.parse(Cookies.get('approvalTask')))
+            setData(JSON.parse(Cookies.get('approvalTask')).task)
+            setSelectedDate(new Date(JSON.parse(Cookies.get('approvalTask')).startDate))
+
+        }else{
+            nav('/')
+        }
     }, []);
     return (
         <div className="flex flex-col mt-8 pl-6 pr-3 lg:px-12 py-0" style={{ height: '700px' }}>
             <div className="flex justify-between items-center gap-32 lg:gap-0">
-                <span className="text-lg lg:text-3xl font-medium text-slate-500 whitespace-nowrap">{approvals_EmpName.name}</span>
+                <span className="text-lg lg:text-3xl font-medium text-slate-500 whitespace-nowrap">{approvalTask.name}</span>
                 <span className="text-sm lg:text-xl font-medium text-slate-500 mr-7 lg:mr-0 whitespace-nowrap">Total Hours</span>
             </div>
             <div className="flex justify-between">
@@ -66,7 +75,7 @@ const Approval_Status = () => {
                     <div className="flex items-centre justify-between gap-1 lg:gap-4 pr-4 lg:pr-0">
                         <AiOutlineMail className="text-base lg:text-3xl font-normal lg:font-medium text-slate-500" />
                         {/* <span className="text-xl font-medium text-slate-500">email icon </span> */}
-                        <span className="text-xs lg:text-xl font-normal lg:font-medium text-slate-500">{approvals_EmpEmail.email}</span>
+                        <span className="text-xs lg:text-xl font-normal lg:font-medium text-slate-500">{approvalTask.email}</span>
                     </div>
                     <div className="flex justify-between items-center lg:mr-0 pr-2 lg:pr-0">
                         <div className="flex justify-between items-center">
@@ -80,12 +89,12 @@ const Approval_Status = () => {
                     <div className="flex items-center justify-center gap-1 lg:gap-3">
                         <CiCircleCheck className="text-base lg:text-2xl font-medium text-slate-500" />
 
-                        <span className={`text-sm lg:text-xl font-medium ${getStatusColor(approvals_TaskStatus.status)}`}>{approvals_TaskStatus.status}</span>
+                        <span className={`text-sm lg:text-xl font-medium ${getStatusColor(approvalTask.status)}`}>{approvalTask.status}</span>
                     </div>
 
                 </div>
                 <div className="-mt-7 -ml-6 lg:ml-0 lg:mt-6">
-                    <span className="text-sm lg:text-2xl font-medium text-slate-500"> {`${approvals_TotalHours.totalHours}h`} </span>
+                    <span className="text-sm lg:text-2xl font-medium text-slate-500"> {`${approvalTask.totalHours}h`} </span>
                 </div>
             </div>
             <div className="flex flex-col mt-4 bg-slate-600">
@@ -112,7 +121,7 @@ const Approval_Status = () => {
                             return <Show_Table
                                 key={index}
                                 index={index}
-                                status={approvals_TaskStatus.status}
+                                status={approvalTask.status}
                                 taskinfo={e}
                                 // onDelete={deleteShowTable}
                                 showDel={data.length > 1}
@@ -135,8 +144,8 @@ const Approval_Status = () => {
                     <span className="text-sm lg:text-lg font-normal text-slate-600 whitespace-nowrap">View Upload:</span>
                 </div>
                 <div className='flex  gap-3 lg:gap-10 ml-44 mt-10 lg:mt-0 lg:ml-0'>
-                    {approvals_TaskStatus.status === 'submit' ? <button className={true ? 'relative inline-flex px-3 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl bg-gray-200 font-semibold text-gray-400 traking-widset rounded-full border-solid border-2 border-gray-400 ' : 'relative inline-flex px-3 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300'} onClick={() => handleEdit('approved')} >Approved</button> : null}
-                    {approvals_TaskStatus.status === 'submit' || approvals_TaskStatus.status === 'approved' ? <button className='relative inline-flex px-3 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300 mr-10 ' onClick={() => handleEdit('rejected')}>Reject</button> : null}
+                    {approvalTask.status === 'submit' ? <button className={true ? 'relative inline-flex px-3 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl bg-gray-200 font-semibold text-gray-400 traking-widset rounded-full border-solid border-2 border-gray-400 ' : 'relative inline-flex px-3 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300'} onClick={() => handleEdit('approved')} >Approved</button> : null}
+                    {approvalTask.status === 'submit' || approvalTask.status === 'approved' ? <button className='relative inline-flex px-3 py-1 lg:px-8 lg:py-3 text-sm lg:text-xl font-semibold traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full bg-gray-300 mr-10 ' onClick={() => handleEdit('rejected')}>Reject</button> : null}
                 </div>
             </div>
         </div>

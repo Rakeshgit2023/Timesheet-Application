@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from "react";
 import Select from 'react-select';
-import axios from 'axios';
 import { RiDeleteBin6Line } from "react-icons/ri";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const ShowTable=({onDelete, showDel, handleData, status, taskinfo, index})=>{
     const [value, setValue] = useState((status==='draft' || status==='submit' || status==='approved'||  status === 'rejected' || status==='' && taskinfo!==1) && {value:taskinfo.taskId, label: taskinfo.taskName});
-    const [option, setOption]=useState([]);
+    const [option, setOption]=useState((status==='draft' || status==='submit' || status==='approved'||  status === 'rejected' || status==='' && taskinfo!==1) && [{value:taskinfo.taskId, label: taskinfo.taskName}]);
     const [weeklyHours, setweeklyHours]=useState((status==='draft' || status==='submit' || status==='approved'||  status === 'rejected' || status==='' && taskinfo!==1) && taskinfo.weeklyHours);
     const [weeklyNotes, setweeklyNotes]=useState((status==='draft' || status==='submit' || status==='approved'||  status === 'rejected' || status==='' && taskinfo!==1) && taskinfo.weeklyNotes);
     const selectStyle = {
@@ -19,9 +20,9 @@ const ShowTable=({onDelete, showDel, handleData, status, taskinfo, index})=>{
     const handelDelete=()=>{
         onDelete(index);
     }
-    const handelGetTaskData=()=>{
-        axios
-          .get('https://timesheetapplication.onrender.com/task/1000')
+    const handelGetTaskData=(employeeId)=>{
+        axiosInstance
+          .get(`/task/${employeeId}`)
           .then((res) => {
             const newOptions = res.data.data.map((e) => ({ value: e.taskId, label: e.project_Info.name+'-'+e.chargeCode+'-'+e.activityType+'-'+e.task }));  
                    setOption(newOptions);
@@ -32,7 +33,7 @@ const ShowTable=({onDelete, showDel, handleData, status, taskinfo, index})=>{
           });
      }
      useEffect(()=>{
-        handelGetTaskData();
+        //handelGetTaskData(JSON.parse(Cookies.get('approvalTask')).employeeId);
        },[])
        const handelSun=(e)=>{
         setweeklyHours({sun:Number(e.target.value),mon:weeklyHours.mon,tue:weeklyHours.tue,wed:weeklyHours.wed,thurs:weeklyHours.thurs,fri:weeklyHours.fri,sat:weeklyHours.sat})

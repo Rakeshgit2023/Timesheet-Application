@@ -3,19 +3,30 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import axios from 'axios';
 import Context from '../../../Context/Context';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const TimesheetSetting_Details = () => {
    const nav = useNavigate();
    const { timesheetId,timesheetEmployeeName,timesheetEmployeeStatus ,timesheetClientName, location, note, startDate, endDate } = useContext(Context);
    // const handelDelete=()=>{
    //    if(window.confirm('Are you sure you want to delete')==true){
-   //       axios
-   //   .delete(`https://timesheetapplication.onrender.com/deleteTimesheetSetting/${timesheetId.id}`)
+   //       axiosInstance
+   //   .delete(`/deleteTimesheetSetting/${timesheetId.id}`)
    //   .then(res=>{
    //      // alert('Data Deleted Successfuly')
    //       console.log(res)
-   //       nav('/editor/timesheetSetting')
+         // Cookies.remove('timesheetSettingId')
+         // Cookies.remove('timesheetSettingEmployeeId');
+         // Cookies.remove('timesheetSettingEmployeeName')
+         // Cookies.remove('timesheetSettingEmployeeStatus')
+         // Cookies.remove('timesheetSettingClientName')
+         // Cookies.remove('timesheetSettingClientId')
+         // Cookies.remove('timesheetSettingLocation')
+         // Cookies.remove('timesheetSettingNote')
+         // Cookies.remove('timesheetSettingStartDate')
+         // Cookies.remove('timesheetSettingEndDate')
+   //       nav('/editor/timesheetSetting') 
    //   })
    //   .catch(err=>console.log(err))
    //   }else{
@@ -23,7 +34,8 @@ const TimesheetSetting_Details = () => {
    //   }
    // }
    useEffect(()=>{
-      console.log(timesheetEmployeeStatus.e_status)
+      Cookies.get('timesheetSettingId')===undefined && nav('/editor/adminDashbord')
+      Cookies.get('RepoteeTab')===undefined && nav('/')
    },[])
    return (
 
@@ -41,7 +53,7 @@ const TimesheetSetting_Details = () => {
                Employee
             </h3>
             <div className="flex w-90 flex-col gap-6 ">
-               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={timesheetEmployeeName.e_name}></input>
+               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingEmployeeName')}></input>
             </div>
          </div>
          <div className='py-6 lg:py-0'>
@@ -49,7 +61,7 @@ const TimesheetSetting_Details = () => {
                Client
             </h3>
             <div className="flex  w-90  flex-col gap-6 ">
-               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={timesheetClientName.c_name}></input>
+               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingClientName')}></input>
             </div>
          </div>
          <div className='py-6'>
@@ -57,7 +69,7 @@ const TimesheetSetting_Details = () => {
                Period Start
             </h3>
             <div className="flex  w-90  flex-col gap-6 ">
-               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={startDate.s_date}></input>
+               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingStartDate')}></input>
             </div>
          </div>
          <div className='py-6 lg:py-0'>
@@ -65,7 +77,7 @@ const TimesheetSetting_Details = () => {
                Period End
             </h3>
             <div className="flex  w-90  flex-col gap-6 ">
-               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={endDate.e_date}></input>
+               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingEndDate')}></input>
             </div>
          </div>
          <div className='py-6'>
@@ -73,7 +85,7 @@ const TimesheetSetting_Details = () => {
                Location
             </h3>
             <div className="flex  w-90  flex-col gap-6 ">
-               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={location.location}></input>
+               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingLocation')}></input>
             </div>
          </div>
          <div className='py-6 lg:py-0'>
@@ -81,7 +93,7 @@ const TimesheetSetting_Details = () => {
                Note
             </h3>
             <div className="flex  w-90  flex-col gap-6 ">
-               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={note.note}></input>
+               <input className='outline-none border-5 border-gray-400 bg-gray-100 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' readOnly={true} value={Cookies.get('timesheetSettingNote')}></input>
             </div>
          </div>
          </div>

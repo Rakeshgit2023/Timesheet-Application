@@ -2,48 +2,35 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/timesheetsetting';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const TimesheetSettingHome = () => {
+    const editor=Cookies.get('EditorTab') 
+    const viewer=Cookies.get('ViewerTab')
     const [apiData, setApiData] = useState([]);
     const [filterApiData, setFilterApiData] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
     const nav = useNavigate();
-    const {setTimesheetId,setTimesheetEmployeeId,setTimesheetEmployeeName,setTimesheetEmployeeStatus,setTimesheetClientName,setTimesheetClientId,setLocation,setNote,setStartDate,setEndDate}=useContext(Context);
 
     const handelRow=(row)=>{
-        nav('/editor/timesheetSettingDetails')
-        const id=row.timesheetId;
-        const e_id=row.employee_Info.employeeId
-        const e_name=row.fullName;
-        const e_status=row.employee_Info.status
-        const c_name=row.client_Info.name;
-        const c_id=row.client_Info.clientId;
-        const location=row.location;
-        const note=row.notes;
-        const s_date=row.startDate;
-        const e_date=row.endDate;
-        console.log(e_name)
-
-        setTimesheetId({id});
-        setTimesheetEmployeeId({e_id});
-        setTimesheetEmployeeName({e_name});
-        setTimesheetEmployeeStatus({e_status})
-        setTimesheetClientName({c_name});
-        setTimesheetClientId({c_id});
-        setLocation({location});
-        setNote({note});
-        setStartDate({s_date});
-        setEndDate({e_date});
-
+        Cookies.set('timesheetSettingId', row.timesheetId)
+        Cookies.set('timesheetSettingEmployeeId',row.employee_Info.employeeId);
+        Cookies.set('timesheetSettingEmployeeName',row.fullName)
+        Cookies.set('timesheetSettingEmployeeStatus',row.employee_Info.status)
+        Cookies.set('timesheetSettingClientName',row.client_Info.name)
+        Cookies.set('timesheetSettingClientId',row.client_Info.clientId)
+        Cookies.set('timesheetSettingLocation',row.location)
+        Cookies.set('timesheetSettingNote',row.notes)
+        Cookies.set('timesheetSettingStartDate',row.startDate)
+        Cookies.set('timesheetSettingEndDate',row.endDate)
+        editor!==undefined ? nav('/editor/timesheetSettingDetails') : nav('/viewer/timesheetSettingDetails')
     }
     const handleDataFetch = () => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get('/timesheetsetting')
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data);
@@ -123,8 +110,15 @@ const TimesheetSettingHome = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+           setIsProcessing(true);
         handleDataFetch()
+        }else{
+            nav('/')
+        }
+        // setIsProcessing(true);
+        // handleDataFetch()
+        // Cookies.get('EditorTab')===undefined && nav('/')
     }, [])
 
     const handleFilter = (e) => {
@@ -162,7 +156,7 @@ const TimesheetSettingHome = () => {
 
                                         />
                                         <div className='flex justify-end mt-4'>
-                                            <button onClick={() => nav('/editor/addTimeSheetSetting')} className='relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300'>ADD</button>
+                                            <button onClick={() => nav('/editor/addTimeSheetSetting')} className={`relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300 ${viewer!==undefined && 'invisible'}`}>ADD</button>
                                         </div>
                                     </>
                                 ) 

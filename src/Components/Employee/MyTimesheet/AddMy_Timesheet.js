@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { GrNext } from "react-icons/gr";
 import { SlCalender } from "react-icons/sl";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +6,8 @@ import ShowTable from "./ShowTable";
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.module.css';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from 'date-fns';
-const API = 'https://timesheetapplication.onrender.com/addMyTimesheet';
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const AddMy_Timesheet = () => {
     const nav = useNavigate();
     const [data, setData] = useState([{
@@ -17,6 +17,8 @@ const AddMy_Timesheet = () => {
         weeklyNotes: { sun: '', mon: '', tue: '', wed: '', thurs: '', fri: '', sat: '' },
     }]);
     const [date, setDate] = useState([]);
+    const [employeeId, setEmployeeId]=useState('')
+    const [leadId, setLeadId]=useState('')
     const [status, setStatus] = useState('draft')
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [opens, setOpens] = useState(false);
@@ -34,37 +36,39 @@ const AddMy_Timesheet = () => {
         }]);
     }
     const handleSubmit = (e) => {
+        console.log(employeeId,leadId)
         e.preventDefault()
-        console.log(data);
+        console.log(data); 
         console.log(format(selectedDate, 'dd/mm/yyyy'))
         const req = {
-            employeeId: 1000,
-            leadId: 1001,
+            employeeId: employeeId,
+            leadId: leadId,
             status: status,
             weekRange: format(selectedDate, 'yyyy-MM-dd'),
             tasks: data
         }
         console.log(req);
-        handleAddNewData(req);
+        handleAddNewData(req,employeeId);
     }
-    const handleAddNewData = (req) => {
-        axios
-            .post(API, req)
+    const handleAddNewData = (req,employeeId) => {
+        axiosInstance
+            .post('/addMyTimesheet', req)
             .then((res) => {
                 console.log(res.data)
-                handelSavedData()
+                handelSavedData(employeeId)
             })
             .catch(err => alert(err.response.data.error))
     }
     const handelEdit = (taskSatatus) => {
+        console.log(employeeId,leadId)
         console.log(data)
         console.log(taskSatatus)
         var u_date = new Date();
         var updateDate = `${u_date.getFullYear()}-${u_date.getMonth + 1}-${u_date.getDay}`
-        axios
-            .put(`https://timesheetapplication.onrender.com/updateMyTimesheet/${timesheetId}`, {
-                employeeId: 1000,
-                leadId: 1001,
+        axiosInstance
+            .put(`/updateMyTimesheet/${timesheetId}`, {
+                employeeId: employeeId,
+                leadId: leadId,
                 status: taskSatatus,
                 weekRange: updateDate,
                 tasks: data
@@ -72,7 +76,7 @@ const AddMy_Timesheet = () => {
             .then(res => {
                 // nav('/editor/chargeActivity')
                 console.log(res.data)
-                handelSavedData()
+                handelSavedData(employeeId)
             })
             .catch(err => alert(err))
     }
@@ -94,10 +98,11 @@ const AddMy_Timesheet = () => {
     }
     const startWeek = startOfWeek(selectedDate);
     const endWeek = endOfWeek(selectedDate);
-    const handelSavedData = (selectedDate) => {
+    const handelSavedData = (employeeId) => {
+        console.log(leadId)
         console.log(format(startWeek, 'd/M/yyyy'))
-        axios
-            .get(`https://timesheetapplication.onrender.com/mytimesheet/1000/${format(startWeek, 'd/M/yyyy')}`)
+        axiosInstance
+            .get(`/mytimesheet/${employeeId}/${format(startWeek, 'd/M/yyyy')}`)
             .then((res) => {
                 console.log("Data Process Successfuly");
                 setTimeout(() => {
@@ -137,7 +142,14 @@ const AddMy_Timesheet = () => {
             })
     }
     useEffect(() => {
-        handelSavedData()
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('EmployeeTab')!==undefined){
+            handelSavedData(JSON.parse(Cookies.get('userInfo')).employeeId)
+        setEmployeeId(JSON.parse(Cookies.get('userInfo')).employeeId)
+        setLeadId(JSON.parse(Cookies.get('userInfo')).leadId)
+        }else{
+            nav('/')
+        }
     }, [selectedDate])
     console.log(data);
     return (

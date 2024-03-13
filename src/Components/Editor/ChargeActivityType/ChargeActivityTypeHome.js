@@ -3,10 +3,11 @@ import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/chargeactivity';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const ChargeActivityTypeHome = () => {
-    const {setChargeActivityId,setChargeProjectName,setChargeProjectId,setChargeCode,setActivityType,setChargeTask,setChargeNote,setChargeDescription}=useContext(Context);
+    const editor=Cookies.get('EditorTab')
+    const viewer=Cookies.get('ViewerTab')
     const [apiData, setApiData] = useState([]);
     const [filterApiData, setFilterApiData] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -15,29 +16,20 @@ const ChargeActivityTypeHome = () => {
     const nav = useNavigate();
 
     const handelRow=(row)=>{
-        nav('/editor/chargeActivityTypeDetails')
-        const id=row.chargeActivityId;
-        const projectName=row.project_Info.name;
-        const projectId=row.project_Info.projectId;
-        const chargeCode=row.chargeCode;
-        const activityType=row.activityType;
-        const task=row.task;
-        const description=row.descriptions;
-        const note=row.notes;
-        //console.log(id,projectName,chargeCode,activityType,task,description,note);
-        setChargeActivityId({id});
-        setChargeProjectName({projectName});
-        setChargeProjectId({projectId});
-        setChargeCode({chargeCode});
-        setActivityType({activityType});
-        setChargeTask({task});
-        setChargeDescription({description});
-        setChargeNote({note});
+        Cookies.set('chargeActivityId',row.chargeActivityId)
+        Cookies.set('chargeActivityProjectName',row.project_Info.name)
+        Cookies.set('chargeActivityProjectId',row.project_Info.projectId)
+        Cookies.set('chargeCode',row.chargeCode)
+        Cookies.set('activityType',row.activityType)
+        Cookies.set('chargeTask',row.task)
+        Cookies.set('chargeDescription',row.descriptions)
+        Cookies.set('chargeNote',row.notes)
+        editor!==undefined ? nav('/editor/chargeActivityTypeDetails') : nav('/viewer/chargeActivityTypeDetails')
     }
     const handleDataFetch = () => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get('/chargeactivity')
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data);
@@ -109,8 +101,15 @@ const ChargeActivityTypeHome = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+            setIsProcessing(true);
         handleDataFetch()
+        }else{
+            nav('/')
+        }
+        // setIsProcessing(true);
+        // handleDataFetch()
+        // Cookies.get('EditorTab')===undefined && nav('/')
     }, [])
 
     const handleFilter = (e) => {
@@ -147,7 +146,7 @@ const ChargeActivityTypeHome = () => {
 
                                         />
                                         <div className='flex justify-end mt-4'>
-                                            <button onClick={() => nav('/editor/createChargeActivity')} className='relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300'>ADD</button>
+                                            <button onClick={() => nav('/editor/createChargeActivity')} className={`relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300 ${viewer!==undefined && 'invisible'}`}>ADD</button>
                                         </div>
                                     </>
                                 )

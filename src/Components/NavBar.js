@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { AiOutlineUser, AiOutlineLock } from "react-icons/ai";
 import { FiLogOut } from "react-icons/fi";
 import { useMsal } from "@azure/msal-react"; 
+import Cookies from "js-cookie";
 const NavBar = () => {
   const nav=useNavigate();
   const {instance}=useMsal();
@@ -15,9 +16,8 @@ const NavBar = () => {
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
- 
   // User name
-  const [username,setUsername] = useState('Sohail Khan');
+  const [username,setUsername] = useState('');
   const handelLogOut=(instance)=>{
     const logoutRequest = {
       account: instance.getAccountByHomeId('/role'),
@@ -25,6 +25,11 @@ const NavBar = () => {
     };
     instance.logoutRedirect(logoutRequest);
   }
+  useEffect(()=>{
+    let data=sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+    let userData=JSON.parse(data)
+    data!==null ? setUsername(userData.name) : nav('/')
+  },[])
  
  
   return (

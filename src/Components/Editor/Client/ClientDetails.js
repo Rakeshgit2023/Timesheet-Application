@@ -5,21 +5,22 @@ import AddProjectClientDetails from "./AddProjectClientDetails";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Context from "../../../Context/Context";
-import axios from "axios";
-const API='https://timesheetapplication.onrender.com/project'
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const ClientDetails=()=>{
+    const editor=Cookies.get('EditorTab')
+    const viewer=Cookies.get('ViewerTab')
     const [apiData, setApiData]=useState([])
     const [chargeApiData, setChargeApiData]=useState([])
     const nav=useNavigate();
-    const{cilentId,clientName,clientStatus} = useContext(Context)
     const [showAddProjectPopUp, setShowAddProjectPopUp]=useState(false);
     const handelFetchProjectDtat=()=>{
-        axios 
-            .get(API)
+        axiosInstance
+            .get('/project')
             .then(res=>{
                 console.log(res)
              const arr=res.data.data.filter((e,i)=>{
-                  return e.client_Info.clientId===cilentId.id;
+                  return e.client_Info.clientId===Number(Cookies.get('clientId'));
                 })
                 setApiData(arr)
                 console.log(arr)
@@ -28,8 +29,8 @@ const ClientDetails=()=>{
             .catch(err=>alert(err.message))
     }
     const handelFetchChargeActivityData=()=>{
-        axios   
-            .get('https://timesheetapplication.onrender.com/chargeactivity')
+        axiosInstance   
+            .get('/chargeactivity')
             .then(res=>{
                 setChargeApiData(res.data.data);
                 console.log(chargeApiData);
@@ -38,12 +39,17 @@ const ClientDetails=()=>{
             .catch(err=>alert(err.message))
     }
     useEffect(()=>{
-        handelFetchProjectDtat();
+        if(editor!==undefined || viewer!==undefined){
+            handelFetchProjectDtat();
+        }else{
+            nav('/')
+        }
+        if(Cookies.get('clientId')===undefined && editor!==undefined && viewer===undefined){
+            nav('/editor/adminDashbord')
+        }
+        //Cookies.get('EditorTab')===undefined && nav('/')
+        console.log(Cookies.get('clientId'))
     },[])
-        useEffect(()=>{
-            if(cilentId.id===undefined)
-            nav('/editor/adminDashbord');
-        },[])
     const columns =[
         {
             name:'Name',
@@ -66,7 +72,7 @@ const ClientDetails=()=>{
                 <div>
                   <RiDeleteBin6Line
                     style={{ marginLeft: 40, paddingLeft: 10 }}
-                    className="cursor-pointer font-medium text-3xl"
+                    className={`cursor-pointer font-medium text-3xl ${viewer!==undefined && 'invisible'}`}
                     onClick={() => handelDeletProject(row)}
                   />
                 </div>
@@ -100,12 +106,15 @@ const ClientDetails=()=>{
     const handelDelete=()=>{
         if(apiData.length===0){
             if(window.confirm('Are you sure you want to delete')==true){
-                axios
-            .delete(`https://timesheetapplication.onrender.com/deleteClient/${cilentId.id}`)
+                axiosInstance
+            .delete(`/deleteClient/${Cookies.get('clientId')}`)
             .then(res=>{
                // alert('Data Deleted Successfuly')
                 console.log(res)
-                nav('/editor/client')
+                nav('/editor/client') 
+                Cookies.remove('clientId');
+        Cookies.remove('clientName');
+        Cookies.remove('clientStatus');
             })
             .catch(err=>alert(err.response.data.error))
             }else{
@@ -125,8 +134,8 @@ const ClientDetails=()=>{
         }
     if(match_Id!==row.projectId){
         if(window.confirm('Are you sure you want to delete')==true){
-            axios
-            .delete(`https://timesheetapplication.onrender.com/deleteProject/${row.projectId}`)
+            axiosInstance
+            .delete(`/deleteProject/${row.projectId}`)
             .then(res=>{
                // alert('Data Deleted Successfuly')
                 console.log(res)
@@ -146,27 +155,31 @@ const ClientDetails=()=>{
             <div className="flex space-x-28 lg:space-x-40 mb-4">
                 <span className="text-2xl lg:text-4xl font-medium text-slate-500 whitespace-nowrap">Client Details</span>
                 <div className="flex gap-1 space-x-2 relative top-0 lg:top-1">
-                    <CiEdit className="text-2xl font-medium cursor-pointer mt-2 rounded-full border-solid border-2 bg-amber-400 " onClick={()=>nav('/editor/editClient')} />
-                    <RiDeleteBin6Line onClick={handelDelete} className="cursor-pointer font-medium text-2xl mt-2" />
+                    {
+                    editor!==undefined && <CiEdit className="text-2xl font-medium cursor-pointer mt-2 rounded-full border-solid border-2 bg-amber-400 " onClick={()=>nav('/editor/editClient')} />
+                    }
+                    {
+                    editor!==undefined && <RiDeleteBin6Line onClick={handelDelete} className="cursor-pointer font-medium text-2xl mt-2" />
+                    }
                 </div>
             </div>
             <div className="w-8/12 lg:w-1/2 mb-8">
                 <div className="py-6">
                     <h3 className="text-sm lg:text-2xl font-medium mb-2">Name</h3>
                     <div className="flex w-90 flex-col gap-6">
-                        <input className="outline-none border-5 border-gray-400 bg-gray-100 rounded px-2 py-2 lg:px-4 text-xs lg:text-base" readOnly={true} placeholder="Name" value={clientName.c_name} id="name" name="name" />
+                        <input className="outline-none border-5 border-gray-400 bg-gray-100 rounded px-2 py-2 lg:px-4 text-xs lg:text-base" readOnly={true} placeholder="Name" value={Cookies.get('clientName')} id="name" name="name" />
                     </div>
                 </div>
                 <div>
                     <h3 className="text-sm lg:text-2xl font-medium mb-2">Status</h3>
                     <div className="flex w-90 flex-col gap-6">
-                        <input className="outline-none border-5 border-gray-400 bg-gray-100 rounded px-2 py-2 lg:px-4 text-xs lg:text-base" readOnly={true} placeholder="Status" value={clientStatus.c_status} id="name" name="status"/>
+                        <input className="outline-none border-5 border-gray-400 bg-gray-100 rounded px-2 py-2 lg:px-4 text-xs lg:text-base" readOnly={true} placeholder="Status" value={Cookies.get('clientStatus')} id="name" name="status"/>
                     </div>
                 </div>
             </div>
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg lg:text-2xl font-medium mb-0 lg:mb-2">List of project</h3>
-                {clientStatus.c_status==='Avtive' || clientStatus.c_status==='active' && <button onClick={()=>setShowAddProjectPopUp(true)} className="relative inline-flex lg:px-8 lg:py-3 px-4 py-2 font-semibold text-lg lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full">Add Project</button>}
+                {Cookies.get('clientStatus')==='Avtive' || Cookies.get('clientStatus')==='active' && <button onClick={()=>setShowAddProjectPopUp(true)} className={`relative inline-flex lg:px-8 lg:py-3 px-4 py-2 font-semibold text-lg lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full ${viewer!==undefined && 'invisible'}`}>Add Project</button>}
             </div>
             <div className="">
                 <DataTable columns={columns}

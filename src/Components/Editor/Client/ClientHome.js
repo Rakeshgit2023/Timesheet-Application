@@ -2,34 +2,27 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import ClientDetails from './ClientDetails';
-import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/client';
-//const API='https://timesheet-application-9xly.onrender.com/client';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const ClientHome = () => {
+    const editor=Cookies.get('EditorTab') 
+    const viewer=Cookies.get('ViewerTab')
     const [apiData, setApiData] = useState([]);
     const [filterApiData, setFilterApiData] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorText, setErrorText] = useState('');
     const nav = useNavigate();
-    const { setCilentId } = useContext(Context)
-    const { setClientName } = useContext(Context)
-    const { setClientStatus } = useContext(Context)
     const handelRow = (row) => {
-        nav('/editor/clientDetails')
-        const id = row.clientId;
-        const c_name = row.name;
-        const c_status = row.status;
-        setCilentId({ id })
-        setClientName({ c_name })
-        setClientStatus({ c_status })
+       editor!==undefined ? nav('/editor/clientDetails') : nav('/viewer/clientDetails')
+        Cookies.set('clientId',row.clientId);
+        Cookies.set('clientName',row.name); 
+        Cookies.set('clientStatus',row.status);
     }
     const handleDataFetch = () => {
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get('/client')
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res);
@@ -90,8 +83,19 @@ const ClientHome = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
+        if(editor!==undefined || viewer!==undefined){
+            setIsProcessing(true);
         handleDataFetch()
+        }else{
+            nav('/')
+        }
+        // Cookies.get('EditorTab')===undefined && nav('/')
+        // Cookies.remove('submittedTask')
+        //         Cookies.remove('teamDashboardEmployee')
+        // Cookies.remove('projectId');
+        // Cookies.remove('projectName');
+        // Cookies.remove('projectDescription')
+        // Cookies.remove('projectNotes')
     }, [])
 
     const handleFilter = (e) => {
@@ -128,7 +132,7 @@ const ClientHome = () => {
 
                                         />
                                         <div className='flex justify-end mt-4'>
-                                            <button onClick={() => nav('/editor/addClient')} className='relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300'>ADD</button>
+                                            <button onClick={() => nav('/editor/addClient')} className={`relative inline-flex px-8 py-2 lg:py-3 font-semibold text-base lg:text-xl traking-widset bg-slate-400  hover:bg-slate-600 hover:text-white rounded-full mr-10 bg-gray-300 ${viewer!==undefined && 'invisible'}`}>ADD</button>
                                         </div>
                                     </>
                                 )

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-const API = 'https://timesheetapplication.onrender.com/addClient';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 //const API='https://timesheet-application-9xly.onrender.com/addclient';
 const AddClient = () => {
   const nav = useNavigate();
@@ -24,8 +25,8 @@ const AddClient = () => {
     }
   })
   const handleAddNewData = (req) => {
-    axios
-      .post(API, req)
+    axiosInstance
+      .post('/addClient', req)
       .then((res) => {
         console.log(res.data)
         nav('/editor/client')
@@ -33,6 +34,9 @@ const AddClient = () => {
       })
       .catch(err => alert(err.response.data.error))
   }
+  useEffect(()=>{
+    Cookies.get('EditorTab')===undefined && nav('/')
+  },[])
   return (
     <div className='w-full'>
       <div className='w-11/12 lg:w-1/2 py-8 px-10 lg:py-12 lg:px-20'>

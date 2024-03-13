@@ -3,9 +3,9 @@ import DataTable from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import axios from "axios";
 import Context from "../../../Context/Context";
-const API = "https://timesheetapplication.onrender.com/mytimesheet/1000";
+import Cookies from "js-cookie";
+import axiosInstance from "../../../utils";
 const My_Timesheet = () => {
   const { setWeek, setMyTimesheetId, setMyTimesheetTaskStatus, setMyTimesheetTotalHours, setMyTimesheetTask } = useContext(Context)
   const [apiData, setApiData] = useState([]);
@@ -29,10 +29,10 @@ const My_Timesheet = () => {
     { value: "inactive", label: "inactive" },
   ];
 
-  const handleDataFetch = () => {
+  const handleDataFetch = (employeeId) => {
     setIsProcessing(true);
-    axios
-      .get(API)
+    axiosInstance
+      .get(`/mytimesheet/${employeeId}`)
       .then((res) => {
         console.log("Data Process Successfuly");
         console.log(res.data);
@@ -49,15 +49,25 @@ const My_Timesheet = () => {
   };
   const handelRow = (row) => {
     const startDate = row.weekRange.start.split('/').reverse().join('-');
-    const status = row.status;
-    const totalHours = row.totalHours;
-    const task = row.tasks;
-    const id = row.timesheetId;
-    setWeek({ startDate });
-    setMyTimesheetId({ id })
-    setMyTimesheetTaskStatus({ status });
-    setMyTimesheetTotalHours({ totalHours });
-    setMyTimesheetTask({ task });
+    const myTimesheetTask={
+      startDate:startDate,
+      task:row.tasks,
+      status:row.status,
+      totalHours:row.totalHours, 
+      id:row.timesheetId,
+      // name:row.employee_Info.fullName,
+      // email:row.employee_Info.email 
+  }
+  Cookies.set('myTimesheetTask',JSON.stringify(myTimesheetTask))
+    // const status = row.status;
+    // const totalHours = row.totalHours;
+    // const task = row.tasks;
+    // const id = row.timesheetId;
+    // setWeek({ startDate });
+    // setMyTimesheetId({ id })
+    // setMyTimesheetTaskStatus({ status });
+    // setMyTimesheetTotalHours({ totalHours });
+    // setMyTimesheetTask({ task });
     nav('/employee/status');
   }
   const columns = [
@@ -66,7 +76,7 @@ const My_Timesheet = () => {
       selectStyle: 'timesheetId',
       selectStyle: 'tasks',
       selectStyle: "weekRange.start",
-      selector: "weekRange.range",
+      selector: "weekRange.range", 
       sortable: true,
       style: {
         color: 'blue',
@@ -104,12 +114,18 @@ const My_Timesheet = () => {
       style: {
         fontSize: "15px",
       },
-    },
+    }, 
   };
 
   useEffect(() => {
-    setIsProcessing(true);
-    handleDataFetch();
+    let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('EmployeeTab')!==undefined){
+          setIsProcessing(true);
+    handleDataFetch(JSON.parse(Cookies.get('userInfo')).employeeId);
+    console.log(JSON.parse(Cookies.get('userInfo')).employeeId)
+        }else{
+          nav('/')
+        }
   }, []);
 
   const handleFilter = (e) => {

@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import DataTable from 'react-data-table-component';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import Context from '../../../Context/Context';
-const API = 'https://timesheetapplication.onrender.com/employee/1000';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const Employee_Home = () => {
     const {setEmployeeId,setFirstName,setLastName,setEmail,setGender,setStatus,setLeadId,setLeadName}=useContext(Context);
     const [activeState, setActiveState] = useState(true);
@@ -20,10 +20,11 @@ const Employee_Home = () => {
     const [errorText, setErrorText] = useState('');
     const nav = useNavigate();
 
-    const handleDataFetch = () => {
+    const handleDataFetch = (employeeId) => {
+        console.log(employeeId)
         setIsProcessing(true)
-        axios
-            .get(API)
+        axiosInstance
+            .get(`/employee/${employeeId}`)
             .then((res) => {
                 console.log('Data Process Successfuly');
                 console.log(res.data.data);
@@ -69,24 +70,8 @@ const Employee_Home = () => {
     //     setRelivedState(true);
     // }
     const handelRow=(row)=>{
-          const e_id=row.employeeId;
-          const fName=row.fName;
-          const lName=row.lName;
-          const email=row.email;
-          const status=row.status;
-          const l_id=row.leadId;
-          const l_name=row.leadName
-          const gen=row.gender;
+        Cookies.set('employeeId',row.employeeId);
           nav('/repotingLead/employeeDetails');
-          setEmployeeId({e_id});
-          setFirstName({fName});
-          setLastName({lName});
-          setEmail({email});
-          setStatus({status});
-          setLeadId({l_id});
-          setLeadName({l_name})
-          setGender({gen});
-          //console.log(e_id,fName,lName,email,status,l_id,gen)
     }
     const columns = [
         {
@@ -146,8 +131,13 @@ const Employee_Home = () => {
     }
 
     useEffect(() => {
-        setIsProcessing(true);
-        handleDataFetch()
+        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+            setIsProcessing(true);
+        handleDataFetch(JSON.parse(Cookies.get('userInfo')).employeeId)
+        }else{
+            nav('/')
+        }
     }, [])
 
     const handleActiveFilter = (e) => {

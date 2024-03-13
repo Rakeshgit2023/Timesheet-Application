@@ -1,18 +1,17 @@
-import React from 'react' 
+import React, { useEffect } from 'react' 
 import { useState,useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import Context from '../../../Context/Context';
-import axios from 'axios';
+import Cookies from 'js-cookie';
+import axiosInstance from '../../../utils';
 const EditChargeActivityType=()=> {
     const nav=useNavigate();
-    const {chargeActivityId,chargeProjectId,chargeProjectName,chargeCode,activityType,chargeTask,chargeNote,chargeDescription}=useContext(Context);
     //const [task, setTask]=useState('');
   const show='relative inline-flex px-7 py-2 lg:px-8 lg:py-3 font-semibold text-lg lg:text-xl traking-widset bg-slate-400 hover:bg-slate-600 hover:text-white rounded-full mr-12';
-  const [value1, setValue1]=useState({value:activityType.activityType, label:activityType.activityType});
-  const [value2, setValue2]=useState({value:chargeTask.task, label:chargeTask.task});
-  const [note, setNote]=useState(chargeNote.note);
-  const [description, setDescription]=useState(chargeDescription.description)
+  const [value1, setValue1]=useState({value:Cookies.get('activityType'), label:Cookies.get('activityType')});
+  const [value2, setValue2]=useState({value:Cookies.get('chargeTask'), label:Cookies.get('chargeTask')});
+  const [note, setNote]=useState(Cookies.get('chargeNote'));
+  const [description, setDescription]=useState(Cookies.get('chargeDescription'))
   const options1 = [
     { value: 'manual testing', label: 'manual testing' },
     { value: 'development', label: 'development' },
@@ -34,10 +33,10 @@ const EditChargeActivityType=()=> {
     }),
   }
   const handelEdit=()=>{
-    axios
-    .put(`https://timesheetapplication.onrender.com/updateChargeActivity/${chargeActivityId.id}`, {
-        projectId:chargeProjectId.projectId,
-        chargeCode:chargeCode.chargeCode,
+    axiosInstance
+    .put(`/updateChargeActivity/${Cookies.get('chargeActivityId')}`, {
+        projectId:Number(Cookies.get('chargeActivityProjectId')),
+        chargeCode:Cookies.get('chargeCode'),
         activityType:value1.value,
         task:value2.value,
         notes:note,
@@ -49,6 +48,9 @@ const EditChargeActivityType=()=> {
     })
     .catch(err => alert(err))
   }
+  useEffect(()=>{
+    Cookies.get('EditorTab')===undefined && nav('/')
+  },[])
   return (
  
         <div className='w-full px-10 py-10 lg:py-10 lg:px-20'>
@@ -61,7 +63,7 @@ const EditChargeActivityType=()=> {
                 Project Name
             </h3>
             <div className="flex w-90 flex-col gap-6 ">
-           <input className='outline-none border-5 border-gray-400 rounded px-4 py-3 lg:py-2 hover:bg-slate-50 text-xs lg:text-base' value={chargeProjectName.projectName} ></input>
+           <input className='outline-none border-5 border-gray-400 rounded px-4 py-3 lg:py-2 hover:bg-slate-50 text-xs lg:text-base' value={Cookies.get('chargeActivityProjectName')} ></input>
            </div>
         </div>
         <div className='py-6 lg:py-0'>
@@ -69,7 +71,7 @@ const EditChargeActivityType=()=> {
                ChargeTypeOrCode
             </h3>
            <div className="flex  w-90  flex-col gap-6 ">
-           <input  className='outline-none border-5 border-gray-400 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' value={chargeCode.chargeCode} ></input>
+           <input  className='outline-none border-5 border-gray-400 rounded px-4 py-3 lg:py-2 text-xs lg:text-base' value={Cookies.get('chargeCode')} ></input>
            </div>
         </div>
         <div className='py-6'>
