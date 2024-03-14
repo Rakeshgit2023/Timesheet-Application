@@ -25,21 +25,38 @@ const Role = () => {
         Cookies.set('EmployeeTab', 4)
     }
     const handelRole = () => {
-        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+        if(msalAccountKey!==null){
+            let userData = sessionStorage.getItem(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
         let user = JSON.parse(userData);
-        userData !== null ?
             axiosInstance
                 .get(`/employee/email/${user.username}`)
                 .then((res) => {
                     console.log(res,'rakesh')
                     Cookies.set('userInfo', JSON.stringify(res.data.data[0]))
+                    //console.log(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
                     setUserInfo(res.data.data[0])
                 })
                 .catch((err) => {
                     console.log(err)
                 })
-            :
+        }else{
             nav('/')
+        }
+        // userData !== null ?
+        //     axiosInstance
+        //         .get(`/employee/email/${user.username}`)
+        //         .then((res) => {
+        //             console.log(res,'rakesh')
+        //             Cookies.set('userInfo', JSON.stringify(res.data.data[0]))
+        //             //console.log(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
+        //             setUserInfo(res.data.data[0])
+        //         })
+        //         .catch((err) => {
+        //             console.log(err)
+        //         })
+        //     :
+        //     nav('/')
 
     }
     useEffect(() => {

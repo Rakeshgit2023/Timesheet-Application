@@ -23,8 +23,8 @@ const TimesheetStatus = () => {
     const [opens, setOpens] = useState(false);
     const [tableData, setTableData] = useState([]);
     useEffect(()=>{ 
-        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
-        if(userData!==null && Cookies.get('EmployeeTab')!==undefined){
+        let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+        if(msalAccountKey!==null && Cookies.get('EmployeeTab')!==undefined){
             setData(JSON.parse(Cookies.get('myTimesheetTask')).task)
             setTotalHours(JSON.parse(Cookies.get('myTimesheetTask')).totalHours)
             setTaskStatus(JSON.parse(Cookies.get('myTimesheetTask')).status)

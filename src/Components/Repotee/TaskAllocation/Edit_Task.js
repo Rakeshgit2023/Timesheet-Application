@@ -43,8 +43,8 @@ const Edit_Task = () => {
       .catch(err => alert(err.response.data.error))
   }
   useEffect(()=>{
-    let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
-    if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+    let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+    if(msalAccountKey!==null && Cookies.get('RepoteeTab')!==undefined){
       setTaskAllocation(JSON.parse(Cookies.get('taskAllocation')))
       setEstimatedHours(JSON.parse(Cookies.get('taskAllocation')).estimatedHours)
       setNote(JSON.parse(Cookies.get('taskAllocation')).note)

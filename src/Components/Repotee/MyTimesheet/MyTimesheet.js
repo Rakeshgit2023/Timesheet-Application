@@ -118,8 +118,8 @@ const MyTimesheet = () => {
   };
 
   useEffect(() => {
-    let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
-        if(userData!==null && Cookies.get('RepoteeTab')!==undefined){
+    let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+        if(msalAccountKey!==null && Cookies.get('RepoteeTab')!==undefined){
           setIsProcessing(true);
     handleDataFetch(JSON.parse(Cookies.get('userInfo')).employeeId);
     console.log(JSON.parse(Cookies.get('userInfo')).employeeId)

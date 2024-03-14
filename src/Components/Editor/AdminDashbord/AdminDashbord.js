@@ -20,9 +20,14 @@ const AdminDashbord = () => {
     const [claimedTask, setClaimedTask]=useState([]);
     const [request, setRequest]=useState([]);
     const handelRole = () => {
-        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+        let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+        if(msalAccountKey!==null){
+            let userData = sessionStorage.getItem(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
         let user = JSON.parse(userData);
-        userData!==null ? setEmployeeName(JSON.parse(Cookies.get('userInfo')).fullName) : nav('/')
+         setEmployeeName(JSON.parse(Cookies.get('userInfo')).fullName)
+        }else{
+            nav('/')
+        }
     }
     const handleDataFetchAdminDashbordData = () => {
         setIsProcessing(true)

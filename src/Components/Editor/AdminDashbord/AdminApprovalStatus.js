@@ -57,12 +57,11 @@ const AdminApprovalStatus = () => {
 
         useEffect(()=>{
            // Cookies.get('EditorTab')===undefined && nav('/role')
-        let userData = sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
-        if(userData!==null && (editor!==undefined || viewer!==undefined)){
+           let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+        if(msalAccountKey!==null && (editor!==undefined || viewer!==undefined)){
             setSubmittedTask(JSON.parse(Cookies.get('submittedTask')))
             setData(JSON.parse(Cookies.get('submittedTask')).task)
             setSelectedDate(new Date(JSON.parse(Cookies.get('submittedTask')).startDate))
-
         }else{
             nav('/')
         }
