@@ -26,9 +26,14 @@ const NavBar = () => {
     instance.logoutRedirect(logoutRequest);
   }
   useEffect(()=>{
-    let data=sessionStorage.getItem('66e5957c-a38f-4d6e-bcc6-6da399a71f6f.06191626-9f52-42fe-8889-97d24d7a6e95-login.windows.net-06191626-9f52-42fe-8889-97d24d7a6e95')
+    let msalAccountKey=sessionStorage.getItem('msal.account.keys')
+    if(msalAccountKey!==null){
+      let data=sessionStorage.getItem(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
     let userData=JSON.parse(data)
-    data!==null ? setUsername(userData.name) : nav('/')
+     setUsername(userData.name)
+    }else{
+      nav('/')
+    }
   },[])
  
  
