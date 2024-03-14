@@ -25,14 +25,14 @@ const Role = () => {
         Cookies.set('EmployeeTab', 4)
     }
     const handelRole = () => {
-        let msalAccountKey=sessionStorage.getItem('msal.account.keys')
-        if(msalAccountKey!==null){
-            let userData = sessionStorage.getItem(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
-        let user = JSON.parse(userData);
+        let msalAccountKey = sessionStorage.getItem('msal.account.keys')
+        if (msalAccountKey !== null) {
+            let userData = sessionStorage.getItem(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g, ""))
+            let user = JSON.parse(userData);
             axiosInstance
                 .get(`/employee/email/${user.username}`)
                 .then((res) => {
-                    console.log(res,'rakesh')
+                    console.log(res, 'rakesh')
                     Cookies.set('userInfo', JSON.stringify(res.data.data[0]))
                     //console.log(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
                     setUserInfo(res.data.data[0])
@@ -40,23 +40,10 @@ const Role = () => {
                 .catch((err) => {
                     console.log(err)
                 })
-        }else{
+        } else {
             nav('/')
         }
-        // userData !== null ?
-        //     axiosInstance
-        //         .get(`/employee/email/${user.username}`)
-        //         .then((res) => {
-        //             console.log(res,'rakesh')
-        //             Cookies.set('userInfo', JSON.stringify(res.data.data[0]))
-        //             //console.log(sessionStorage.getItem('msal.account.keys').replace(/[\[\]"]/g,""))
-        //             setUserInfo(res.data.data[0])
-        //         })
-        //         .catch((err) => {
-        //             console.log(err)
-        //         })
-        //     :
-        //     nav('/')
+
 
     }
     useEffect(() => {
@@ -92,8 +79,9 @@ const Role = () => {
 
         Cookies.remove('employeeId')
         Cookies.remove('employeeStatus')
-                Cookies.remove('leadNameOfEmployee')
-                Cookies.remove('leadIdOfEmployee')
+        Cookies.remove('leadNameOfEmployee')
+        Cookies.remove('leadIdOfEmployee')
+        Cookies.remove('effectiveForm')
 
         Cookies.remove('timesheetSettingId')
         Cookies.remove('timesheetSettingEmployeeId');
@@ -132,7 +120,7 @@ const Role = () => {
                             <img src={viewer} alt="viewer" className="rounded-lg w-52 h-44" />
                             <h3 className="font-medium text-base lg:text-xl text-indigo-900 mb-2">Viewer</h3>
                         </div>
-                         {
+                        {
                             userInfo.isLead
                                 ?
                                 (
@@ -140,15 +128,15 @@ const Role = () => {
                                         <img src={viewer} alt="viewer" className="rounded-lg w-52 h-44" />
                                         <h3 className="font-medium text-base lg:text-xl text-indigo-900 mb-2 whitespace-nowrap">Repoting Lead</h3>
                                     </div>
-                             )
+                                )
                                 :
-                                ( 
+                                (
                                     <div className="flex flex-col justify-center items-center bg-white border-solid border-8 border-white hover:border-solid hover:border-8 hover:border-yellow-500 rounded-lg cursor-pointer" onClick={handelEmployee}>
                                         <img src={viewer} alt="viewer" className="rounded-lg w-52 h-44" />
                                         <h3 className="font-medium text-base lg:text-xl text-indigo-900 mb-2 whitespace-nowrap">Employee</h3>
                                     </div>
                                 )
-                        } 
+                        }
                     </div>
                 </div>
             </div>

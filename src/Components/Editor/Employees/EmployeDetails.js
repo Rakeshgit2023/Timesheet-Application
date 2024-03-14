@@ -76,9 +76,10 @@ const EmployeDetails = () => {
                 setAllocatedTask(res.data.data.allTasks);
                 setClientinfo(res.data.data.client_Info); // Update state with allocated tasks
                 // Update state with allocated tasks
-                // Cookies.set('employeeStatus',res.data.data.employee_Info.status)
-                // Cookies.set('leadNameOfEmployee',res.data.data.employee_Info.leadName)
-                // Cookies.set('leadIdOfEmployee',res.data.data.employee_Info.leadId)
+                Cookies.set('employeeStatus',res.data.data.employee_Info.status)
+                Cookies.set('leadNameOfEmployee',res.data.data.employee_Info.leadName)
+                Cookies.set('leadIdOfEmployee',res.data.data.employee_Info.leadId)
+                Cookies.set('effectiveForm',res.data.data.employee_Info.effectiveDate)
             })
             .catch((err) => {
                 console.log("Data Process Error");

@@ -7,7 +7,7 @@ const EditEmployee = () => {
     const [value, setValue] = useState({value:Cookies.get('employeeStatus'),label:Cookies.get('employeeStatus')})
     const [leadValue, setLeadValue] = useState({value:Cookies.get('leadIdOfEmployee'), label:Cookies.get('leadNameOfEmployee')})
     const [leadOption, setLeadOption] = useState([])
-    const [effectiveForm, setEffectiveForm] = useState('10-12-2024')
+    const [effectiveForm, setEffectiveForm] = useState('')
     const nav = useNavigate()
     const options = [
         { value: 'active', label: 'active' },
@@ -26,10 +26,9 @@ const EditEmployee = () => {
         .put(`/updateEmployee/${employeeId}`,{
             status:value.value,
              leadId:leadValue.value,
-             effectiveDate:effectiveForm
         })
         .then((res) => {
-        
+        nav('/editor/employeeDetails')
         })
         .catch((err) => {
             console.log(err)
@@ -37,11 +36,9 @@ const EditEmployee = () => {
     }
     const handelUpdateInActiveEmployee=(employeeId)=>{
         axiosInstance
-        .put(`/deleteEmployee/${employeeId}`,{
-            status: value.value
-        })
+        .put(`/deleteEmployee/${employeeId}`)
         .then((res) => {
-        
+        nav('/editor/employeeDetails')
         })
         .catch((err) => {
             console.log(err)
@@ -74,10 +71,10 @@ const EditEmployee = () => {
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
         const display = `${year}-${month}-${day}`
-        setEffectiveForm(display)
+        leadValue.value===Number(Cookies.get('leadIdOfEmployee')) ? setEffectiveForm(Cookies.get('effectiveForm')) : setEffectiveForm(display)
     }, [leadValue.value])
     useEffect(() => {
-        setEffectiveForm('rakesh')
+        setEffectiveForm(Cookies.get('effectiveForm'))
     }, [])
     return (
         <div className="flex flex-col px-20 py-12">
@@ -104,7 +101,7 @@ const EditEmployee = () => {
                     <div className=" flex justify-between items-center w-full mb-20">
                         <span className='font-medium text-lg text-slate-500'>Effective Form</span>
                         <div className="w-8/12">
-                            <input className='outline-none cursor-pointer border-5 border-gray-400 bg-slate-100  rounded px-4 py-2 mr-2 w-11/12 font-normal text-lg' value={effectiveForm} />
+                            <input className='outline-none cursor-pointer border-5 border-gray-400 bg-slate-100  rounded px-4 py-2 mr-2 w-11/12 font-normal text-lg' value={effectiveForm} readOnly />
                             {/* <select className='outline-none border-5 border-gray-400 bg-slate-100  rounded px-20 py-2 mr-2 w-11/12'>
                                 <option></option>
                             </select> */}
